@@ -1,7 +1,7 @@
 # RedNorte Healthcare Platform: Backend Core System
 
 ## Introducción y Contexto Institucional
-[cite_start]El Servicio Público de Salud RedNorte administra una red de hospitales y centros de atención primaria que enfrentan desafíos críticos en la gestión de listas de espera para consultas y procedimientos[cite: 106]. [cite_start]La actual falta de integración entre sistemas genera ineficiencias como la pérdida de horas médicas y una escasa visibilidad para los pacientes[cite: 114, 116].
+[cite_start] El Servicio Público de Salud RedNorte administra una red de hospitales y centros de atención primaria que enfrentan desafíos críticos en la gestión de listas de espera para consultas y procedimientos[cite: 106]. [cite_start]La actual falta de integración entre sistemas genera ineficiencias como la pérdida de horas médicas y una escasa visibilidad para los pacientes[cite: 114, 116].
 
 [cite_start]Esta plataforma representa una solución tecnológica centralizada basada en microservicios, diseñada para optimizar la asignación de citas y mejorar la comunicación institucional[cite: 107, 120].
 
