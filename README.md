@@ -1,83 +1,130 @@
 # RedNorte Healthcare Platform: Backend Core System
 
 ## 1. Introducción y Contexto Institucional
-El Servicio Público de Salud RedNorte administra una red de establecimientos asistenciales que enfrentan desafíos críticos en la gestión de listas de espera. La falta de integración entre sistemas actuales genera ineficiencias, pérdida de horas médicas y escasa visibilidad para los pacientes sobre sus solicitudes.
+El **Servicio Público de Salud RedNorte** administra una red de establecimientos asistenciales que enfrentan desafíos críticos en la gestión de listas de espera para consultas médicas, procedimientos y cirugías. La falta de integración entre los sistemas actuales genera ineficiencias operativas, pérdida de horas médicas por cancelaciones de último momento y una escasa visibilidad de las solicitudes para los pacientes.
 
-Esta plataforma representa una solución tecnológica centralizada basada en microservicios, diseñada para optimizar la asignación de citas, reducir cancelaciones y mejorar la transparencia institucional.
+Esta plataforma representa una solución tecnológica centralizada basada en una **arquitectura de microservicios escalable**, diseñada para optimizar la asignación de citas y garantizar la transparencia y seguridad en el manejo de datos críticos de salud.
 
 ---
 
 ## 2. Arquitectura de Microservicios
-El sistema se basa en una arquitectura de microservicios escalable y desacoplada, permitiendo que cada componente funcione de manera modular para facilitar futuras mejoras sin comprometer la estabilidad global.
+El sistema se fundamenta en un diseño modular y desacoplado, permitiendo que cada componente evolucione de manera independiente mediante el uso de arquetipos **Maven** personalizados.
 
+### Componentes Core del Backend
+Siguiendo los requerimientos técnicos de la asignatura **DSY1106**, el ecosistema se compone de los siguientes elementos:
 
-
-### Componentes del Ecosistema
-De acuerdo con los requerimientos técnicos del proyecto, el backend se compone de elementos construidos mediante arquetipos Maven personalizados:
-
-* **API Gateway:** Punto único de entrada que gestiona la comunicación entre el frontend y el ecosistema de microservicios.
-* **Backend For Frontend (BFF):** Componente dedicado a orquestar la interacción específica entre la interfaz de usuario y los servicios internos.
-* **Servicio de Listas de Espera:** Microservicio independiente responsable del registro y administración de pacientes en espera de atención.
-* **Servicio de Reasignación Automática:** Módulo lógico encargado de optimizar el uso de horas médicas ante cancelaciones.
+* **API Gateway**: Punto único de entrada que gestiona el enrutamiento, la seguridad y la comunicación centralizada hacia los microservicios.
+* **Backend For Frontend (BFF)**: Capa de orquestación dedicada a gestionar la interacción entre el cliente y los servicios internos, optimizando la entrega de datos.
+* **Servicio de Listas de Espera (Módulo 1)**: Microservicio independiente responsable del registro y administración de pacientes en espera de atención.
+* **Servicio de Reasignación Automática (Módulo 2)**: Módulo lógico encargado de optimizar el uso de horas médicas mediante algoritmos de reasignación ante cancelaciones.
 
 ---
 
-## 3. Implementación de Patrones de Diseño
-La robustez y mantenibilidad del sistema se fundamentan en la aplicación de patrones arquitectónicos y de diseño exigidos:
+## 3. Implementación de Patrones de Diseño y Resiliencia
+La robustez del backend se garantiza mediante la aplicación de patrones industriales que aseguran la modularidad y el rendimiento del sistema:
 
-* **Repository Pattern:** Implementado para la persistencia de datos mediante JPA y entidades, asegurando el desacoplamiento entre la lógica de negocio y el acceso a datos.
-* **Factory Method:** Utilizado para la creación dinámica de instancias, promoviendo la modularización del sistema.
-* **Circuit Breaker:** Mecanismo de resiliencia configurado para manejar fallos en la comunicación entre servicios y prevenir errores en cascada.
-
-
+* **Repository Pattern**: Utilizado para la persistencia de datos mediante **JPA y entidades**, desacoplando la lógica de negocio del acceso directo a la base de datos.
+* **Factory Method**: Implementado para la creación dinámica de instancias, facilitando la extensión de funcionalidades sin afectar el núcleo del sistema.
+* **Circuit Breaker**: Mecanismo de resiliencia configurado para manejar fallos en la comunicación entre microservicios, previniendo caídas en cascada y asegurando la disponibilidad del servicio.
 
 ---
 
-## 4. Estándares de Calidad y Ciclo de Vida
-El desarrollo de la plataforma RedNorte sigue rigurosos estándares de ingeniería para garantizar una solución robusta y confiable.
+## 4. Gestión de Datos y Persistencia
+El sistema implementa una estrategia de persistencia aislada para garantizar la autonomía de los servicios:
+* **Aislamiento de Datos**: Cada microservicio de dominio posee su propia base de datos **PostgreSQL**, gestionada mediante JPA.
+* **Optimización**: Uso de entidades JPA y procedimientos almacenados (SPs) para la ejecución de operaciones complejas con altos volúmenes de datos.
 
-### Gestión de Versiones (Git Flow)
-Se utiliza una estrategia de branching profesional (Git Flow o GitHub Flow) para coordinar el desarrollo colaborativo y la integración eficiente de cambios.
+---
 
+## 5. Estándares de Calidad y Ciclo de Vida
+El desarrollo sigue rigurosos protocolos de ingeniería para asegurar una solución robusta y confiable antes de su despliegue.
 
+### Control de Versiones (Git Flow)
+Se utiliza una estrategia de branching profesional (**Git Flow**) para coordinar el desarrollo colaborativo, asegurando un historial de versiones limpio y trazable.
 
 ### Aseguramiento de la Calidad (QA)
-De acuerdo con las exigencias de la etapa final del proyecto, el sistema cumple con:
-* **Pruebas Unitarias:** Implementación de pruebas con una cobertura mínima del 60% del código.
-* **SonarQube:** Validación sistemática de estándares de calidad y cobertura de código.
-* **Integración Continua (CI):** Pipeline automatizado para la ejecución de pruebas unitarias en cada actualización del repositorio.
+De acuerdo con las exigencias de la **Sección 3** del caso semestral:
+* **Pruebas Unitarias**: Implementación de pruebas con una cobertura mínima del **60% del código** en todos los componentes.
+* **SonarQube**: Validación sistemática de cobertura, deuda técnica y cumplimiento de estándares de codificación.
+* **Integración Continua (CI)**: Pipeline automatizado que garantiza la ejecución de pruebas unitarias en cada actualización del repositorio.
 
 ---
 
-## 5. Infraestructura y Despliegue
-El sistema utiliza contenedores para garantizar la paridad entre los entornos de desarrollo y producción, asegurando la escalabilidad del sistema.
+## 6. Infraestructura y Despliegue
+El sistema está diseñado para operar en entornos de contenedores, facilitando la escalabilidad y sostenibilidad de la infraestructura.
 
 ### Stack Tecnológico
-* **Lenguaje:** Java 17+
-* **Framework:** Spring Boot 3.x
-* **Frontend:** Framework moderno (Angular/React/Vue.js) integrado vía API REST.
-* **Persistencia:** Spring Data JPA + PostgreSQL con bases de datos independientes.
-* **Contenedores:** Docker y Docker Compose.
-
-### Guía de Ejecución Local
-Para levantar el ecosistema completo de microservicios y sus bases de datos, siga estos pasos:
-
-6. **Construcción de Artefactos (desde la raíz del proyecto):**
-   ```bash
-   mvn clean package -DskipTests
-# 2. Orquestación con Docker Compose
-   docker-compose up -d --build
+* **Lenguaje**: Java 17+.
+* **Framework**: Spring Boot 3.x / Spring Cloud.
+* **Persistencia**: Spring Data JPA + PostgreSQL.
+* **Orquestación**: Docker y Docker Compose.
 
 ---
 
-## 6. Ética, Seguridad y Privacidad
-Dada la sensibilidad de los datos clínicos en RedNorte, el sistema se alinea con principios de ética y responsabilidad:
-* **Privacidad**: Aislamiento de datos por microservicio para prevenir fugas de información.
-* **Seguridad**: Gestión centralizada de peticiones mediante API Gateway.
-* **Sostenibilidad**: Arquitectura diseñada para la escalabilidad a largo plazo.
+## 7. Ética, Sostenibilidad y Responsabilidad
+El diseño de la plataforma RedNorte no solo responde a una necesidad técnica, sino que se alinea con principios fundamentales de responsabilidad profesional:
 
-## 7. Frontend y Modularización
-El frontend, desarrollado en [Angular/React/Vue.js], utiliza componentes empaquetados como módulos NPM reutilizables, asegurando que la interfaz sea intuitiva, responsiva y fácil de mantener.
+* **Privacidad de Datos**: Se garantiza el manejo ético de información sensible mediante el aislamiento de datos por microservicio, asegurando que la información clínica sea procesada solo por los servicios autorizados.
+* **Seguridad y Confidencialidad**: La implementación de un API Gateway permite centralizar la seguridad y validar el acceso antes de interactuar con la lógica de negocio.
+* **Sostenibilidad Técnica**: La arquitectura de microservicios asegura la escalabilidad del sistema a largo plazo, permitiendo que la plataforma crezca según la demanda hospitalaria sin requerir una reestructuración completa.
 
-## 8. Conclusiones y Mejora Continua
-Este desarrollo consolida los aprendizajes de microservicios y patrones de diseño. Como mejora futura, se identifica la oportunidad de migrar la comunicación inter-servicios a un modelo basado en eventos para mejorar la resiliencia ante picos de demanda en el Servicio de Salud.
+---
+
+## 8. Interfaz de Integración (API REST & BFF)
+El backend actúa como un proveedor de servicios robusto diseñado para la interoperabilidad:
+
+* **Backend For Frontend (BFF)**: Este componente orquesta las peticiones del cliente, transformando y combinando datos de múltiples microservicios para optimizar el rendimiento de la red.
+* **Contrato de API REST**: Se exponen endpoints estandarizados que facilitan el desacoplamiento total entre la lógica del servidor y cualquier interfaz externa.
+
+---
+
+## 9. Análisis de Decisiones y Reflexión Crítica
+Como parte del proceso de evaluación final (EFT), se analizan las decisiones técnicas que sustentan la solución:
+
+### Efectividad de Patrones
+* **Circuit Breaker**: Es fundamental para la estabilidad del sistema, ya que previene fallos en cascada si un microservicio de salud se encuentra saturado.
+* **Repository Pattern**: Ha contribuido significativamente a la modularidad y reutilización de código, permitiendo una gestión de persistencia limpia mediante JPA.
+
+### Desafíos de Integración
+* La integración de componentes backend y bases de datos independientes representó el mayor desafío técnico, resuelto mediante una configuración estricta en el ecosistema de microservicios para asegurar la cohesión del sistema.
+* Se identifica como mejora futura la transición hacia una arquitectura orientada a eventos para desacoplar aún más la comunicación entre el registro de pacientes y la reasignación automática.
+
+---
+
+## 10. Aseguramiento de Calidad y Pruebas
+La confiabilidad del sistema está respaldada por una estrategia de validación rigurosa:
+
+* **Cobertura de Código**: Se ha alcanzado una cobertura mínima del 60% mediante pruebas unitarias implementadas en todos los componentes del sistema.
+* **Validación Continua**: El uso de SonarQube permite identificar de forma proactiva vulnerabilidades y deudas técnicas, asegurando la mantenibilidad del software.
+
+---
+
+## 11. Endpoints Principales y Contrato de API
+Para garantizar el desacoplamiento y la eficiencia, el sistema expone los siguientes puntos de acceso gestionados por el API Gateway:
+
+| Microservicio | Endpoint Base | Responsabilidad |
+| :--- | :--- | :--- |
+| **Waiting List Service** | `/api/v1/patients` | Gestión CRUD de pacientes en espera. |
+| **Reassignment Service** | `/api/v1/optimize` | Ejecución de lógica de reasignación automática. |
+| **Portal Salud (BFF)** | `/api/v1/portal` | Orquestación de datos para el paciente. |
+
+---
+
+## 12. Conclusiones y Reflexión Retrospectiva
+Este proyecto consolida la capacidad de diseñar soluciones escalables bajo presión y estándares de salud pública. La aplicación de patrones como Circuit Breaker no solo es técnica, sino ética, ya que garantiza la continuidad de un servicio crítico de salud. Se reconoce que la transición a microservicios independientes fue el mayor aprendizaje en términos de cohesión y mantenibilidad del software.
+
+---
+
+## 13. Guía de Ejecución Local
+
+1. **Compilación de módulos**:
+   ```bash
+   mvn clean package -DskipTests
+   ```
+   # 2. Orquestación con Docker Compose
+   docker-compose up -d --build
+
+   # 3. Verificación de Salud de los Servicios
+   # Eureka Dashboard: http://localhost:8761
+   # API Gateway: http://localhost:8080
+   # SonarQube (Calidad): http://localhost:9000
