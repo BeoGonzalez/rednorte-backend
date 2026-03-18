@@ -122,8 +122,9 @@ Este proyecto consolida la capacidad de diseñar soluciones escalables bajo pres
    mvn clean package -DskipTests
    ```
    # 2. Orquestación con Docker Compose
+   ```bash
    docker-compose up -d --build
-
+   ```
    # 3. Verificación de Salud de los Servicios
    # Eureka Dashboard: http://localhost:8761
    # API Gateway: http://localhost:8080
