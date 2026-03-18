@@ -10,13 +10,24 @@ Esta plataforma representa una solución tecnológica centralizada basada en una
 ## 2. Arquitectura de Microservicios
 El sistema se fundamenta en un diseño modular y desacoplado, permitiendo que cada componente evolucione de manera independiente mediante el uso de arquetipos **Maven** personalizados.
 
-### Componentes Core del Backend
-Siguiendo los requerimientos técnicos de la asignatura **DSY1106**, el ecosistema se compone de los siguientes elementos:
 
-* **API Gateway**: Punto único de entrada que gestiona el enrutamiento, la seguridad y la comunicación centralizada hacia los microservicios.
-* **Backend For Frontend (BFF)**: Capa de orquestación dedicada a gestionar la interacción entre el cliente y los servicios internos, optimizando la entrega de datos.
-* **Servicio de Listas de Espera (Módulo 1)**: Microservicio independiente responsable del registro y administración de pacientes en espera de atención.
-* **Servicio de Reasignación Automática (Módulo 2)**: Módulo lógico encargado de optimizar el uso de horas médicas mediante algoritmos de reasignación ante cancelaciones.
+
+### Componentes Core del Backend
+Siguiendo los requerimientos técnicos de la asignatura **DSY1106**, el ecosistema se ha diseñado aplicando el principio de Responsabilidad Única (SRP), dividiendo la lógica de negocio en **5 microservicios** orquestados, además de las capas de enrutamiento:
+
+* **API Gateway**: Punto único de entrada que gestiona el enrutamiento, la seguridad y la comunicación centralizada.
+* **Backend For Frontend (BFF)**: Capa de orquestación dedicada a gestionar la interacción y entrega de datos hacia las interfaces de usuario.
+
+**Módulo 1: Sistema Integrado de Listas de Espera**
+* 🏥 **Patient Service**: Única fuente de la verdad sobre la identidad del paciente (datos demográficos y previsión).
+* 📋 **Waiting List Service**: Gestiona puramente la "fila", registrando ingresos, especialidad, nivel de prioridad (Triage) y estados.
+
+**Módulo 2: Sistema de Reasignación Automática**
+* 📅 **Agenda Service**: Administra los bloques de tiempo médico, boxes y registra las cancelaciones de último minuto.
+* ⚙️ **Reassignment Service**: Motor lógico central. Cruza los cupos liberados por la agenda con la lista de espera para realizar la asignación prioritaria.
+
+**Módulo 3: Portal de Información para Pacientes**
+* 🔔 **Notification & Portal Service**: Puente de comunicación. Permite consultar la posición en la lista y envía alertas automáticas garantizando la transparencia.
 
 ---
 
@@ -104,9 +115,10 @@ Para garantizar el desacoplamiento y la eficiencia, el sistema expone los siguie
 
 | Microservicio | Endpoint Base | Responsabilidad |
 | :--- | :--- | :--- |
-| **Waiting List Service** | `/api/v1/patients` | Gestión CRUD de pacientes en espera. |
-| **Reassignment Service** | `/api/v1/optimize` | Ejecución de lógica de reasignación automática. |
-| **Portal Salud (BFF)** | `/api/v1/portal` | Orquestación de datos para el paciente. |
+| **Waiting List Service** | `/api/v1/waiting-list` | Gestión CRUD de la fila de pacientes en espera. |
+| **Reassignment Service**| `/api/v1/reassignment` | Ejecución del algoritmo de optimización médica. |
+| **Agenda Service** | `/api/v1/agenda` | Gestión de bloques de tiempo y cancelaciones. |
+| **Portal Salud (BFF)** | `/api/v1/portal` | Orquestación de datos de transparencia para el paciente. |
 
 ---
 
