@@ -121,7 +121,7 @@ Este proyecto consolida la capacidad de diseñar soluciones escalables bajo pres
    ```bash
    mvn clean package -DskipTests
    ```
-   # 2. Orquestación con Docker Compose
+2. **Orquestación con Docker Compose**
    ```bash
    docker-compose up -d --build
    ```
