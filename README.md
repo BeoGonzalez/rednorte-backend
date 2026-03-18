@@ -117,15 +117,24 @@ Este proyecto consolida la capacidad de diseñar soluciones escalables bajo pres
 
 ## 13. Guía de Ejecución Local
 
-1. **Compilación de módulos**:
+1. **Compilación de Artefactos (Maven)**:
+   Genera los ejecutables `.jar` de cada microservicio en el ecosistema, limpiando construcciones previas y omitiendo la fase de pruebas para agilizar el despliegue local.
    ```bash
    mvn clean package -DskipTests
-   ```
-2. **Orquestación con Docker Compose**:
+2. **Orquestación de Infraestructura (Docker Compose)**:
+   Levanta todo el ecosistema de contenedores en segundo plano (`-d`), forzando la construcción de las imágenes más recientes (`--build`). Este paso inicializará automáticamente:
+   * Las bases de datos aisladas (PostgreSQL).
+   * El Service Discovery (Eureka Server).
+   * El enrutador central (API Gateway).
+   * Los microservicios de dominio (Listas de Espera y Reasignación).
+   
    ```bash
    docker-compose up -d --build
-   ```
 3. **Verificación de Salud de los Servicios**:
-   Eureka Dashboard: http://localhost:8761
-   API Gateway: http://localhost:8080
-   SonarQube (Calidad): http://localhost:9000
+   Una vez que los contenedores estén en ejecución, puedes monitorear el estado del ecosistema en los siguientes enlaces:
+
+   | Servicio | Puerto | URL de Acceso | Descripción |
+   | :--- | :---: | :--- | :--- |
+   | **Eureka Server** | `8761` | [http://localhost:8761](http://localhost:8761) | Panel de descubrimiento de microservicios. |
+   | **API Gateway** | `8080` | [http://localhost:8080](http://localhost:8080) | Punto de entrada unificado y ruteo. |
+   | **SonarQube** | `9000` | [http://localhost:9000](http://localhost:9000) | Panel de calidad y cobertura de código. |
