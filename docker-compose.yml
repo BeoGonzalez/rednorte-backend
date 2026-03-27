@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+
+  eureka-server:
+    build: ./eureka-server
+    ports:
+      - "8761:8761"
+
+  ms-productos:
+    build: ../../../../Microservicios-Eureka-Gateway/Microservicios-Eureka-Gateway/ms-productos
+    ports:
+      - "8081:8081"
+    depends_on:
+      - eureka-server
+
+  ms-pedidos:
+    build: ../../../../Microservicios-Eureka-Gateway/Microservicios-Eureka-Gateway/ms-pedidos
+    ports:
+      - "8082:8082"
+    depends_on:
+      - eureka-server
+
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - eureka-server

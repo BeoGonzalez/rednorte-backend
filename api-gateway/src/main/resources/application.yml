@@ -1,0 +1,31 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      server:
+        webmvc:
+          routes:
+
+            - id: ruta-productos
+              uri: lb://ms-productos
+              predicates:
+                - Path=/api/productos/**
+              filters:
+                - StripPrefix=1
+
+            - id: ruta-pedidos
+              uri: lb://ms-pedidos
+              predicates:
+                - Path=/api/pedidos/**
+              filters:
+                - StripPrefix=1
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka/
