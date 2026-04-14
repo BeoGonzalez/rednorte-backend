@@ -7,19 +7,23 @@ services:
     ports:
       - "8761:8761"
 
-  ms-productos:
-    build: ../../../../Microservicios-Eureka-Gateway/Microservicios-Eureka-Gateway/ms-productos
+  ms-pacientes:
+    build: ./ms-pacientes
     ports:
       - "8081:8081"
-    depends_on:
-      - eureka-server
+    environment:
+      SERVER_PORT: 8081
 
-  ms-pedidos:
-    build: ../../../../Microservicios-Eureka-Gateway/Microservicios-Eureka-Gateway/ms-pedidos
-    ports:
-      - "8082:8082"
+      EUREKA_URL: http://eureka-server:8761/eureka
     depends_on:
-      - eureka-server
+      eureka-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8081/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
 
   api-gateway:
     build: ./api-gateway
