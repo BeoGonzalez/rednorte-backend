@@ -10,18 +10,10 @@ spring:
       server:
         webmvc:
           routes:
-
-            - id: ruta-productos
-              uri: lb://ms-productos
+            - id: ruta-pacientes
+              uri: lb://ms-pacientes
               predicates:
-                - Path=/api/productos/**
-              filters:
-                - StripPrefix=1
-
-            - id: ruta-pedidos
-              uri: lb://ms-pedidos
-              predicates:
-                - Path=/api/pedidos/**
+                - Path=/api/pacientes/**
               filters:
                 - StripPrefix=1
 
