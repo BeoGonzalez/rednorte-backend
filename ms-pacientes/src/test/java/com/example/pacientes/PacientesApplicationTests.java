@@ -1,10 +1,10 @@
-package com.rednorte.ms_espera;
+package com.example.pacientes;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class MsEsperaApplicationTests {
+class PacientesApplicationTests {
 
 	@Test
 	void contextLoads() {
