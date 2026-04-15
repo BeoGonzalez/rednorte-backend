@@ -4,13 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c8c6d00f-c21c-4253-b31a-ba30450f6417" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/src/main/resources/application.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-pacientes/src/main/java/com/example/pacientes/dto/PacienteResponseDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-pacientes/src/main/java/com/example/pacientes/dto/PacienteResponseDto.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-pacientes/src/main/java/com/example/pacientes/service/PacienteService.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-pacientes/src/main/java/com/example/pacientes/service/PacienteService.java" afterDir="false" />
-    </list>
+    <list default="true" id="c8c6d00f-c21c-4253-b31a-ba30450f6417" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -151,7 +145,7 @@
       <workItem from="1776174805452" duration="586000" />
       <workItem from="1776175478885" duration="979000" />
       <workItem from="1776196982438" duration="4144000" />
-      <workItem from="1776226264498" duration="8456000" />
+      <workItem from="1776226264498" duration="9059000" />
     </task>
     <servers />
   </component>
