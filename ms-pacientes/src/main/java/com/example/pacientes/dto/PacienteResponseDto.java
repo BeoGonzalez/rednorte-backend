@@ -1,5 +1,7 @@
 package com.example.pacientes.dto;
 
+import com.example.pacientes.model.EstadoPaciente;
+
 import java.time.LocalDateTime;
 
 public record PacienteResponseDto(
@@ -8,6 +10,6 @@ public record PacienteResponseDto(
         String email,
         String nombre,
         String apellido,
+        EstadoPaciente estado,
         LocalDateTime fechaRegistro) {
-
 }
