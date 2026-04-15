@@ -6,9 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="c8c6d00f-c21c-4253-b31a-ba30450f6417" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-lista-espera/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/ms-lista-espera/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-pacientes/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/ms-pacientes/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ms-pacientes/src/main/java/com/example/pacientes/security/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-pacientes/src/main/java/com/example/pacientes/security/SecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-gateway/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-gateway/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-pacientes/src/main/java/com/example/pacientes/dto/PacienteResponseDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-pacientes/src/main/java/com/example/pacientes/dto/PacienteResponseDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ms-pacientes/src/main/java/com/example/pacientes/service/PacienteService.java" beforeDir="false" afterPath="$PROJECT_DIR$/ms-pacientes/src/main/java/com/example/pacientes/service/PacienteService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -19,6 +20,7 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Dockerfile" />
+        <option value="Enum" />
         <option value="Class" />
       </list>
     </option>
@@ -60,7 +62,7 @@
     "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "codeWithMe.voiceChat.enabledByDefault": "false",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "fix/api-gateway",
     "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "C:/Users/benja/OneDrive/Escritorio/ev_fullstack3/rednorte-backend",
@@ -148,6 +150,8 @@
       <workItem from="1776172670091" duration="558000" />
       <workItem from="1776174805452" duration="586000" />
       <workItem from="1776175478885" duration="979000" />
+      <workItem from="1776196982438" duration="4144000" />
+      <workItem from="1776226264498" duration="8456000" />
     </task>
     <servers />
   </component>
