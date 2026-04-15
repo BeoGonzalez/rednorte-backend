@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import com.example.pacientes.model.EstadoPaciente;
 
 @Service
 public class PacienteService {
@@ -27,12 +28,17 @@ public class PacienteService {
     }
 
     private PacienteResponseDto mapearADto(Paciente paciente) {
+        // 1. Convertimos el String que viene de la BD al Enum oficial de forma segura.
+        EstadoPaciente estadoEnum = paciente.getEstado() != null
+                ? EstadoPaciente.valueOf(paciente.getEstado().toUpperCase())
+                : EstadoPaciente.ACTIVO;
         return new PacienteResponseDto(
                 paciente.getId(),
                 paciente.getRut(),
                 paciente.getEmail(),
                 paciente.getNombre(),
                 paciente.getApellido(),
+                estadoEnum,
                 paciente.getFecharegistro()
         );
     }
@@ -50,21 +56,14 @@ public class PacienteService {
         paciente.setEmail(dto.email());
         paciente.setNombre(dto.nombre());
         paciente.setApellido(dto.apellido());
-        paciente.setPassword(dto.password());
+        paciente.setEstado("ACTIVO");
 
         // NUEVO: Encriptamos la contraseña usando BCrypt ANTES de guardarla
         paciente.setPassword(passwordEncoder.encode(dto.password()));
 
         Paciente pacienteGuardado = pacienteRepository.save(paciente);
 
-        return new PacienteResponseDto(
-                pacienteGuardado.getId(),
-                pacienteGuardado.getRut(),
-                pacienteGuardado.getEmail(),
-                pacienteGuardado.getNombre(),
-                pacienteGuardado.getApellido(),
-                pacienteGuardado.getFecharegistro()
-        );
+        return mapearADto(pacienteGuardado);
     }
     public TokenResponseDto login(LoginPacienteDto dto) {
         // 1. Buscamos al paciente
