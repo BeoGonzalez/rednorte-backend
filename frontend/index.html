@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <h1>Ejemplo bff</h1>
+    <button onclick="cargar()">Llamar al BFF</button>
+    <p id ="resultado"></p>
+<script>function cargar(){
+    fecth("http://localhost:8080/api/saludo").then(res => res.text()).then(data => {document.getElementById("resultado").innerText = data})
+}</script>
+
+</body>
+</html>

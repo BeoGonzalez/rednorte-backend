@@ -9,6 +9,7 @@
         <module name="api-gateway" />
         <module name="ms-lista-espera" />
         <module name="pacientes" />
+        <module name="bff" />
         <module name="eureka-server" />
       </profile>
     </annotationProcessing>
@@ -16,6 +17,7 @@
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="api-gateway" options="-parameters" />
+      <module name="bff" options="-parameters" />
       <module name="eureka-server" options="-parameters" />
       <module name="ms-lista-espera" options="-parameters" />
       <module name="pacientes" options="-parameters" />
