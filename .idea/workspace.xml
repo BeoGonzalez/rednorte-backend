@@ -4,7 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c8c6d00f-c21c-4253-b31a-ba30450f6417" name="Changes" comment="" />
+    <list default="true" id="c8c6d00f-c21c-4253-b31a-ba30450f6417" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/jarRepositories.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -56,10 +63,14 @@
     "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "codeWithMe.voiceChat.enabledByDefault": "false",
-    "git-widget-placeholder": "fix/api-gateway",
+    "git-widget-placeholder": "feature/webclient",
     "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/benja/OneDrive/Escritorio/ev_fullstack3/rednorte-backend",
+    "last_opened_file_path": "C:/Users/Y409-PCXX/rednorte-backend/ms-server",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
     "run.configurations.included.in.services": "true",
     "settings.editor.selected.configurable": "preferences.pluginManager",
@@ -71,6 +82,7 @@
       <recent name="C:\Users\benja\OneDrive\Escritorio\ev_fullstack3\rednorte-backend" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Y409-PCXX\rednorte-backend" />
       <recent name="C:\Users\benja\OneDrive\Escritorio\ev_fullstack2\rednorte-backend" />
     </key>
   </component>
@@ -99,9 +111,23 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="MsClientApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="ms-client" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.ms_client.MsClientApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="MsListaEsperaApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <module name="ms-lista-espera" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.ms_lista_espera.MsListaEsperaApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="MsServerApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="ms-server" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.ms_server.MsServerApplication" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -117,11 +143,12 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-30f59d01ecdd-2fc7cc6b9a17-intellij.indexing.shared.core-IU-253.32098.37" />
-        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-IU-253.32098.37" />
+        <option value="bundled-jdk-9823dce3aa75-fdfe4dae3a2d-intellij.indexing.shared.core-IU-243.21565.193" />
+        <option value="bundled-js-predefined-d6986cc7102b-e768b9ed790e-JavaScript-IU-243.21565.193" />
       </set>
     </attachedChunks>
   </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="c8c6d00f-c21c-4253-b31a-ba30450f6417" name="Changes" comment="" />
@@ -146,6 +173,7 @@
       <workItem from="1776175478885" duration="979000" />
       <workItem from="1776196982438" duration="4144000" />
       <workItem from="1776226264498" duration="9059000" />
+      <workItem from="1777998522402" duration="1047000" />
     </task>
     <servers />
   </component>
