@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/bff/api/v1/dashboard")
-@CrossOrigin(origins = "http://localhost:4200") // Permite la conexión desde Angular
+@CrossOrigin(origins = "http://localhost:4200")
 public class BffDashboardController {
 
     private final PacienteClient pacienteClient;
@@ -18,12 +18,12 @@ public class BffDashboardController {
     }
 
     @GetMapping("/paciente-resumen/{id}")
-    public ResponseEntity<Object> obtenerResumenPaciente(@PathVariable Long id) {
-        // El BFF llama al ms-pacientes a través de Feign
-        Object datosPaciente = pacienteClient.obtenerPacientePorId(id);
+    public ResponseEntity<Object> obtenerResumenPaciente(
+            @PathVariable Long id,
+            @RequestHeader("Authorization") String token) { // ⬅️ 1. Atrapamos el token de Angular
 
-        // Aquí podrías agregar más llamadas (ej. a ms-lista-espera)
-        // y mezclar los datos antes de devolverlos.
+        // 2. Le pasamos el token al cliente Feign
+        Object datosPaciente = pacienteClient.obtenerPacientePorId(id, token);
 
         return ResponseEntity.ok(datosPaciente);
     }
