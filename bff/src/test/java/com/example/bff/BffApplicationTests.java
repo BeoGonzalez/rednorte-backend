@@ -1,10 +1,10 @@
-package com.example.ms_server;
+package com.example.bff;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class MsServerApplicationTests {
+class BffApplicationTests {
 
 	@Test
 	void contextLoads() {
