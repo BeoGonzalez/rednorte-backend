@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="api-gateway" />
+        <module name="ms-lista-espera" />
+        <module name="pacientes" />
+        <module name="security" />
+        <module name="bff" />
+        <module name="eureka-server" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="ms-client" target="17" />
+      <module name="ms-server" target="17" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="api-gateway" options="-parameters" />
+      <module name="bff" options="-parameters" />
+      <module name="eureka-server" options="-parameters" />
+      <module name="ms-client" options="-parameters" />
+      <module name="ms-lista-espera" options="-parameters" />
+      <module name="ms-server" options="-parameters" />
+      <module name="pacientes" options="-parameters" />
+      <module name="security" options="-parameters" />
+    </option>
+  </component>
+</project>

@@ -32,6 +32,11 @@ spring:
           predicates:
             - Path=/bff/**
 
+        - id: security-route
+          uri: lb://security  # <-- Ahora apunta a tu nuevo nombre
+          predicates:
+            - Path=/api/auth/**  # (O la ruta que hayas definido para el login/registro)
+
 eureka:
   client:
     service-url:

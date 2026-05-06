@@ -102,3 +102,16 @@ services:
       - "8080:8080"
     depends_on:
       - eureka-server
+
+  security:
+    build: ./security
+    container_name: security
+    ports:
+      - "8083:8083" # O el puerto interno que le asignes
+    environment:
+      SERVER_PORT: 8083
+      EUREKA_URL: http://eureka-server:8761/eureka
+      # Aquí también irán las variables de su propia base de datos (ej. auth_db)
+    depends_on:
+      eureka-server:
+        condition: service_healthy
