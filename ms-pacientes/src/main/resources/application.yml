@@ -6,27 +6,27 @@ spring:
     name: ms-pacientes
 
   datasource:
-    url: jdbc:h2:mem:rednorte_db;DB_CLOSE_DELAY=-1
-    driverClassName: org.h2.Driver
-    username: sa
-    password: password
-  jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
-    hibernate:
-      ddl-auto: create-drop
-    show-sql: true
+    # Usamos las variables de entorno de Docker si existen, o localhost si lo corres desde tu IDE
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/rednorte_db}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:password}
+    driver-class-name: org.postgresql.Driver
 
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      # Cambiamos a 'update' para que tus datos no se borren cada vez que reinicias
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
 eureka:
   client:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      # Apunta al contenedor de Eureka
       defaultZone: http://eureka-server:8761/eureka/
   instance:
-    # NUEVO: Fundamental para que Eureka sepa cómo rutear el tráfico a este microservicio en Docker
     prefer-ip-address: true
