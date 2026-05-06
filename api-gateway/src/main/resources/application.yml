@@ -9,25 +9,28 @@ spring:
       discovery:
         locator:
           enabled: true
-      # NUEVA ESTRUCTURA SPRING CLOUD 2025
-      server:
-        webflux:
-          globalcors:
-            corsConfigurations:
-              '[/**]':
-                allowedOrigins: "*"
-                allowedMethods: "*"
-                allowedHeaders: "*"
-          routes:
-            - id: ruta-pacientes
-              uri: lb://ms-pacientes
-              predicates:
-                - Path=/api/pacientes/**
+      # CORRECCIÓN DE ESTRUCTURA: globalcors y routes van directo bajo gateway
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+      routes:
+        - id: ruta-pacientes
+          uri: lb://ms-pacientes
+          predicates:
+            - Path=/api/pacientes/**
 
-            - id: ruta-lista-espera
-              uri: lb://ms-lista-espera
-              predicates:
-                - Path=/api/listas-espera/**
+        - id: ruta-lista-espera
+          uri: lb://ms-lista-espera
+          predicates:
+            - Path=/api/listas-espera/**
+
+        - id: ruta-bff
+          uri: lb://bff
+          predicates:
+            - Path=/bff/**
 
 eureka:
   client:
