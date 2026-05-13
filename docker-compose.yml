@@ -2,7 +2,9 @@ version: '3.8'
 
 services:
 
+  # ==========================================
   # --- BASES DE DATOS ---
+  # ==========================================
   postgres-pacientes:
     image: postgres:15-alpine
     container_name: postgres-pacientes
@@ -27,7 +29,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
     ports:
-      - "5433:5432" # Mapeado al 5433 en tu PC local para no chocar con el otro
+      - "5433:5432" # Mapeado al 5433
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d listas_db"]
       interval: 10s
@@ -35,7 +37,27 @@ services:
       retries: 5
     restart: unless-stopped
 
+  # NUEVA BD: Para aislar los usuarios y credenciales
+  postgres-security:
+    image: postgres:15-alpine
+    container_name: postgres-security
+    environment:
+      POSTGRES_DB: security_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5435:5432" # Mapeado al 5435 para no chocar con las otras
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d security_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+
+  # ==========================================
   # --- MICROSERVICIOS CORE ---
+  # ==========================================
   eureka-server:
     build: ./eureka-server
     container_name: eureka-server
@@ -50,6 +72,26 @@ services:
       retries: 10
     restart: unless-stopped
 
+  # NUEVO MICROSERVICIO: Emisor de Tokens
+  security:
+    build: ./security
+    container_name: security
+    ports:
+      - "8083:8083"
+    environment:
+      SERVER_PORT: 8083
+      EUREKA_URL: http://eureka-server:8761/eureka
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-security:5432/security_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: password
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY} # Inyectado desde el archivo .env
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      postgres-security:
+        condition: service_healthy
+    restart: unless-stopped
+
   ms-pacientes:
     build: ./ms-pacientes
     ports:
@@ -57,10 +99,10 @@ services:
     environment:
       SERVER_PORT: 8081
       EUREKA_URL: http://eureka-server:8761/eureka
-      # Le pasamos las credenciales de BD por variable de entorno (Buena práctica)
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-pacientes:5432/pacientes_db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: password
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY} # Para que pueda validar los tokens
     depends_on:
       eureka-server:
         condition: service_healthy
@@ -83,6 +125,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-lista-espera:5432/listas_db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: password
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY} # Para que pueda validar los tokens
     depends_on:
       eureka-server:
         condition: service_healthy
@@ -95,7 +138,9 @@ services:
       retries: 10
     restart: unless-stopped
 
+  # ==========================================
   # --- GATEWAY ---
+  # ==========================================
   api-gateway:
     build: ./api-gateway
     ports:
