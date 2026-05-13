@@ -23,40 +23,16 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable)
-                .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        // --- RUTAS PÚBLICAS DE SWAGGER ---
-                        .requestMatchers(
-                                "/v3/api-docs/**",
-                                "/swagger-ui/**",
-                                "/swagger-ui.html",
-                                "/webjars/**"
-                        ).permitAll()
-
-                        // --- RUTAS PÚBLICAS DE TU API ---
-                        // En ms-pacientes dejas estas:
-                        .requestMatchers(HttpMethod.POST, "/api/pacientes/registro").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/pacientes/login").permitAll()
-
-                        // Si estás en ms-lista-espera, podrías no tener rutas públicas
-                        // más que Swagger y H2, pero dejarlas no rompe nada.
-
-                        .requestMatchers(request -> request.getRequestURI().startsWith("/h2-console")).permitAll()
-
-                        // TODO LO DEMÁS REQUIERE TOKEN
-                        .anyRequest().authenticated()
+                        .requestMatchers("/api/pacientes/**").authenticated() // Protegemos los recursos médicos
+                        .anyRequest().permitAll()
                 )
-                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
-    }
-
-    @Bean
-    public BCryptPasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
     }
 }

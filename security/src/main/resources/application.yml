@@ -18,7 +18,8 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      # Inyectamos EUREKA_URL desde docker-compose, y si no existe (al programar local), usa localhost
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}
 
 # CRÍTICO: La clave secreta debe ser larga (mínimo 32 caracteres)
 jwt:

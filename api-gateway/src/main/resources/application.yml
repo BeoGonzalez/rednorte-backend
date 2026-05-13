@@ -32,6 +32,11 @@ spring:
           predicates:
             - Path=/bff/**
 
+        - id: ruta-security
+          uri: lb://security
+          predicates:
+            - Path=/api/auth/**
+
 eureka:
   client:
     service-url:

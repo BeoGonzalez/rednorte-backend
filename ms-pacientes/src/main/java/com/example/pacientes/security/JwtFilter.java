@@ -18,7 +18,6 @@ import java.util.ArrayList;
 public class JwtFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
 
-    @Autowired
     public JwtFilter(JwtService jwtService) {
         this.jwtService = jwtService;
     }
@@ -26,29 +25,25 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
+        final String authHeader = request.getHeader("Authorization");
 
-        // 1. Buscamos la credencial en el encabezado de la petición
-        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
-        // 2. Verificamos si existe y si tiene el formato correcto ("Bearer token...")
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7); // Extraemos solo el código, quitando la palabra "Bearer "
+        String jwt = authHeader.substring(7);
+        String username = jwtService.extractUsername(jwt);
 
-            // 3. Pasamos el token por nuestro escáner matemático
-            if (jwtService.validarToken(token)) {
-                String email = jwtService.extraerEmail(token);
-
-                // 4. ¡Es válido! Le avisamos al Guardia de Spring Security que lo deje pasar
+        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            if (jwtService.isTokenValid(jwt)) {
+                // Creamos la autenticación sin roles por ahora, o extrayéndolos del token si los incluiste
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        email, null, new ArrayList<>() // Aquí irían los roles (PACIENTE, ADMIN), por ahora vacío
+                        username, null, new ArrayList<>()
                 );
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }
-
-        // 5. Dejamos que la petición siga su camino
         filterChain.doFilter(request, response);
     }
-
-
 }
