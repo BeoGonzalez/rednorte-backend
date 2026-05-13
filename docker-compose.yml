@@ -72,6 +72,22 @@ services:
       retries: 10
     restart: unless-stopped
 
+      # ==========================================
+      # --- BFF (Backend For Frontend) ---
+      # ==========================================
+  bff:
+    build: ./bff
+    container_name: bff
+    ports:
+      - "8090:8090" # Puerto definido en tu bff/application.yml
+    environment:
+      SERVER_PORT: 8090
+      EUREKA_URL: http://eureka-server:8761/eureka
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+    restart: unless-stopped
+
   # NUEVO MICROSERVICIO: Emisor de Tokens
   security:
     build: ./security

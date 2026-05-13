@@ -6,6 +6,7 @@ import com.example.ms_lista_espera.service.ListaEsperaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize; // 🔴 Importación añadida
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -34,6 +35,16 @@ public class ListaEsperaController {
             @PathVariable Long id,
             @RequestHeader("Authorization") String token) {
         return ResponseEntity.ok(listaEsperaService.obtenerPorId(id, token));
+    }
+
+    // 🔴 Solo los médicos pueden ver la lista de espera
+    @GetMapping("/filtrar")
+    @PreAuthorize("hasAuthority('ROLE_MEDICO')")
+    public ResponseEntity<List<SolicitudResponseDto>> obtenerPorEstadoYTipo( // 🔴 DTO Corregido
+                                                                             @RequestParam String estado,     // Ej: "BUSCANDO_CITA"
+                                                                             @RequestParam String tipoCita) { // Ej: "CARDIOLOGIA"
+
+        return ResponseEntity.ok(listaEsperaService.filtrar(estado, tipoCita));
     }
 
     // 3. GET BY ESTADO

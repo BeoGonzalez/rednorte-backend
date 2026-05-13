@@ -42,10 +42,20 @@ public class PacienteService {
                 .collect(Collectors.toList());
     }
 
-    public PacienteResponseDto obtenerPorId(Long id) {
-        Paciente paciente = pacienteRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Paciente no encontrado con ID: " + id));
-        return mapearADto(paciente);
+    public PacienteResponseDto crear(PacienteRequestDto dto) {
+        Paciente paciente = new Paciente();
+
+        // Usamos los métodos del 'record' y aprovechamos de formatear el RUT igual que en tu método de actualizar
+        paciente.setRut(dto.rut().replace(".", "").toUpperCase());
+        paciente.setNombre(dto.nombre());
+        paciente.setApellido(dto.apellido());
+        paciente.setEmail(dto.email());
+        // Por defecto, el modelo ya asigna ROLE_PACIENTE
+
+        Paciente guardado = pacienteRepository.save(paciente);
+
+        // Llamamos al método correcto que tienes definido arriba
+        return mapearADto(guardado);
     }
 
     public List<PacienteResponseDto> obtenerPorEstado(String estado) {
@@ -66,6 +76,13 @@ public class PacienteService {
 
         Paciente pacienteActualizado = pacienteRepository.save(paciente);
         return mapearADto(pacienteActualizado);
+    }
+
+    public PacienteResponseDto obtenerPorId(Long id) {
+        Paciente paciente = pacienteRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Paciente no encontrado con ID: " + id));
+
+        return mapearADto(paciente);
     }
 
     public PacienteResponseDto actualizarParcial(Long id, Map<String, Object> campos) {
