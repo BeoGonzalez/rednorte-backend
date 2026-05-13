@@ -18,6 +18,8 @@
         <module>eureka-server</module>
         <module>ms-pacientes</module>
         <module>ms-lista-espera</module>
+        <module>bff</module>
+        <module>security</module>
     </modules>
 
 </project>

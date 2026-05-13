@@ -1,30 +1,28 @@
 package com.example.bff.controller;
 
 import com.example.bff.client.PacienteClient;
+import feign.FeignException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/bff/api/v1/dashboard")
-@CrossOrigin(origins = "http://localhost:4200")
+@RequestMapping("/bff/dashboard")
 public class BffDashboardController {
 
-    private final PacienteClient pacienteClient;
-
     @Autowired
-    public BffDashboardController(PacienteClient pacienteClient) {
-        this.pacienteClient = pacienteClient;
-    }
+    private PacienteClient pacienteClient;
 
-    @GetMapping("/paciente-resumen/{id}")
-    public ResponseEntity<Object> obtenerResumenPaciente(
-            @PathVariable Long id,
-            @RequestHeader("Authorization") String token) { // ⬅️ 1. Atrapamos el token de Angular
-
-        // 2. Le pasamos el token al cliente Feign
-        Object datosPaciente = pacienteClient.obtenerPacientePorId(id, token);
-
-        return ResponseEntity.ok(datosPaciente);
+    @GetMapping("/patients")
+    public ResponseEntity<?> getPatients() {
+        try {
+            // Intenta buscar los pacientes en el microservicio real
+            return pacienteClient.getPacientes();
+        } catch (FeignException.NotFound e) {
+            // 🔴 Si ms-pacientes devuelve 404, lo atrapamos aquí
+            return ResponseEntity.status(404).body("{\"error\": \"El microservicio ms-pacientes no tiene la ruta /api/pacientes o no devolvió nada\"}");
+        } catch (FeignException e) {
+            return ResponseEntity.status(e.status()).body(e.contentUTF8());
+        }
     }
 }

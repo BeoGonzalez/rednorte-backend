@@ -117,6 +117,14 @@ public class ListaEsperaService {
         return mapearADtoSimple(solicitudRepository.save(s));
     }
 
+    // ... agregar este método a tu clase service actual ...
+    public List<SolicitudResponseDto> filtrar(String estado, String tipoCita) {
+        return solicitudRepository.findByEstadoAndTipoSolicitud(estado.toUpperCase(), tipoCita.toUpperCase())
+                .stream()
+                .map(this::mapearADtoSimple)
+                .collect(Collectors.toList());
+    }
+
     // --- 7. DELETE: ELIMINAR ---
     public void eliminar(Long id) {
         if (!solicitudRepository.existsById(id)) {
@@ -124,4 +132,6 @@ public class ListaEsperaService {
         }
         solicitudRepository.deleteById(id);
     }
+
+
 }
