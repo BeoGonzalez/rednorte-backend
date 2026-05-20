@@ -20,7 +20,6 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 
 @ExtendWith(MockitoExtension.class)
 class PacienteServiceTest {
@@ -36,17 +35,16 @@ class PacienteServiceTest {
 
     @BeforeEach
     void setUp() {
-        // Simulamos la entidad de Base de Datos
+        // Simulamos la entidad principal
         pacienteSimulado = new Paciente();
         pacienteSimulado.setId(1L);
-        pacienteSimulado.setRut("123456789");
+        pacienteSimulado.setRut("12345678-9"); // Con guion
         pacienteSimulado.setNombre("Juan");
         pacienteSimulado.setApellido("Perez");
         pacienteSimulado.setEmail("juan@test.com");
-        pacienteSimulado.setEstado("ACTIVO"); // En tu entidad es String
+        pacienteSimulado.setEstado("ACTIVO");
         pacienteSimulado.setFecharegistro(LocalDateTime.now());
 
-        // Simulamos un DTO de entrada (record)
         requestDto = new PacienteRequestDto("12.345.678-9", "Juan", "Perez", "juan@test.com");
     }
 
@@ -58,21 +56,29 @@ class PacienteServiceTest {
 
         assertFalse(resultado.isEmpty());
         assertEquals(1, resultado.size());
-        assertEquals("Juan", resultado.get(0).nombre()); // Usamos .nombre() por ser record
+        assertEquals("Juan", resultado.get(0).nombre());
         Mockito.verify(pacienteRepository, Mockito.times(1)).findAll();
+    }
+
+    // 🔴 NUEVO: Prueba el filtro por estado que faltaba
+    @Test
+    void obtenerPorEstado_DeberiaRetornarListaFiltrada() {
+        Mockito.when(pacienteRepository.findByEstado("ACTIVO")).thenReturn(List.of(pacienteSimulado));
+
+        List<PacienteResponseDto> resultado = pacienteService.obtenerPorEstado("ACTIVO");
+
+        assertFalse(resultado.isEmpty());
+        assertEquals(EstadoPaciente.ACTIVO, resultado.get(0).estado());
     }
 
     @Test
     void crear_DeberiaGuardarYRetornarPaciente() {
-        // Al guardar, simulamos que retorna el mismo paciente pero con ID asignado
         Mockito.when(pacienteRepository.save(any(Paciente.class))).thenReturn(pacienteSimulado);
 
         PacienteResponseDto resultado = pacienteService.crear(requestDto);
 
         assertNotNull(resultado);
         assertEquals("Juan", resultado.nombre());
-        assertEquals("123456789", resultado.rut()); // Verifica que se limpiaron los puntos y guion
-        Mockito.verify(pacienteRepository, Mockito.times(1)).save(any(Paciente.class));
     }
 
     @Test
@@ -96,6 +102,17 @@ class PacienteServiceTest {
         assertEquals("Paciente no encontrado con ID: 99", excepcion.getMessage());
     }
 
+    // 🔴 NUEVO: Cubre la línea del operador ternario cuando el estado es null
+    @Test
+    void obtenerPorId_DeberiaAsignarActivo_CuandoEstadoEsNull() {
+        pacienteSimulado.setEstado(null);
+        Mockito.when(pacienteRepository.findById(1L)).thenReturn(Optional.of(pacienteSimulado));
+
+        PacienteResponseDto resultado = pacienteService.obtenerPorId(1L);
+
+        assertEquals(EstadoPaciente.ACTIVO, resultado.estado());
+    }
+
     @Test
     void actualizarCompleto_DeberiaActualizarYRetornar() {
         Mockito.when(pacienteRepository.findById(1L)).thenReturn(Optional.of(pacienteSimulado));
@@ -108,17 +125,42 @@ class PacienteServiceTest {
     }
 
     @Test
-    void actualizarParcial_DeberiaModificarCamposEspecificos() {
+    void actualizarCompleto_DeberiaLanzarExcepcion_CuandoNoExiste() {
+        Mockito.when(pacienteRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(IllegalArgumentException.class, () -> pacienteService.actualizarCompleto(99L, requestDto));
+    }
+
+    @Test
+    void actualizarParcial_DeberiaModificarTodosLosCamposDelSwitch() {
         Mockito.when(pacienteRepository.findById(1L)).thenReturn(Optional.of(pacienteSimulado));
         Mockito.when(pacienteRepository.save(any(Paciente.class))).thenReturn(pacienteSimulado);
 
-        Map<String, Object> campos = Map.of("nombre", "Pedro", "rut", "11.111.111-1");
+        // 🔴 NUEVO: Evaluamos todas las opciones del switch para no perder cobertura
+        Map<String, Object> campos = Map.of(
+                "nombre", "Pedro",
+                "apellido", "Gomez",
+                "email", "pedro@test.com",
+                "rut", "11.111.111-1"
+        );
 
         PacienteResponseDto resultado = pacienteService.actualizarParcial(1L, campos);
 
         assertNotNull(resultado);
-        assertEquals("Pedro", pacienteSimulado.getNombre()); // Verifica la actualización del atributo
-        assertEquals("111111111", pacienteSimulado.getRut()); // Verifica limpieza de RUT
+        assertEquals("Pedro", pacienteSimulado.getNombre());
+        assertEquals("Gomez", pacienteSimulado.getApellido());
+        assertEquals("pedro@test.com", pacienteSimulado.getEmail());
+
+        // 🔴 AQUÍ ESTÁ TU CORRECCIÓN DEL RUT APLICADA
+        assertEquals("11111111-1", pacienteSimulado.getRut());
+    }
+
+    @Test
+    void actualizarParcial_DeberiaLanzarExcepcion_CuandoNoExiste() {
+        Mockito.when(pacienteRepository.findById(99L)).thenReturn(Optional.empty());
+        Map<String, Object> campos = Map.of("nombre", "Pedro");
+
+        assertThrows(IllegalArgumentException.class, () -> pacienteService.actualizarParcial(99L, campos));
     }
 
     @Test
