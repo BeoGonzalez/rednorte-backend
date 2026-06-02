@@ -8,13 +8,14 @@ import org.springframework.web.bind.annotation.RequestHeader;
 
 @FeignClient(name = "ms-pacientes")
 public interface PacienteClient {
+
+    // 🔴 Modificado: Ahora exige el token para reenviarlo a ms-pacientes
     @GetMapping("/api/pacientes")
-    ResponseEntity<?> getPacientes();
+    ResponseEntity<?> getPacientes(@RequestHeader("Authorization") String token);
 
     @GetMapping("/api/pacientes/{id}")
     Object obtenerPacientePorId(
             @PathVariable("id") Long id,
-            @RequestHeader("Authorization") String token // ⬅️ El BFF ahora enviará el token
-
+            @RequestHeader("Authorization") String token
     );
 }

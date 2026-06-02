@@ -14,12 +14,11 @@ public class BffDashboardController {
     private PacienteClient pacienteClient;
 
     @GetMapping("/patients")
-    public ResponseEntity<?> getPatients() {
+    public ResponseEntity<?> getPatients(@RequestHeader("Authorization") String token) { // 🔴 Capturamos el token del frontend
         try {
-            // Intenta buscar los pacientes en el microservicio real
-            return pacienteClient.getPacientes();
+            // 🔴 Le pasamos el token al Feign Client
+            return pacienteClient.getPacientes(token);
         } catch (FeignException.NotFound e) {
-            // 🔴 Si ms-pacientes devuelve 404, lo atrapamos aquí
             return ResponseEntity.status(404).body("{\"error\": \"El microservicio ms-pacientes no tiene la ruta /api/pacientes o no devolvió nada\"}");
         } catch (FeignException e) {
             return ResponseEntity.status(e.status()).body(e.contentUTF8());
