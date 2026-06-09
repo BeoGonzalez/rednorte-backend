@@ -43,6 +43,11 @@ spring:
           predicates:
             - Path=/api/auth/**
 
+        - id: ms-chatbot
+          uri: lb://ms-chatbot
+          predicates:
+            - Path=/api/chatbot/**
+
 eureka:
   client:
     service-url:
