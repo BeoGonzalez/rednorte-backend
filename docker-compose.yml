@@ -15,7 +15,7 @@ services:
     ports:
       - "5432:5432" # Un solo puerto local para administrar todo en DBeaver
     volumes:
-      # Inyecta el script para crear las 3 bases de datos automáticamente
+      # Inyecta el script para crear las 4 bases de datos automáticamente (security, pacientes, doctores, listas)
       - ./postgres-init/init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
@@ -58,6 +58,9 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  # ==========================================
+  # --- SEGURIDAD Y AUTENTICACIÓN ---
+  # ==========================================
   security:
     build: ./security
     container_name: security
@@ -66,11 +69,10 @@ services:
     environment:
       SERVER_PORT: 8083
       EUREKA_URL: http://eureka-server:8761/eureka
-      # 🔴 Apunta al contenedor maestro
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-server:5432/security_db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: password
-      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY} # Único punto que requiere control de firmas criptográficas
     depends_on:
       eureka-server:
         condition: service_healthy
@@ -78,18 +80,21 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  # ==========================================
+  # --- DOMINIO DE PACIENTES ---
+  # ==========================================
   ms-pacientes:
     build: ./ms-pacientes
+    container_name: ms-pacientes
     ports:
       - "8081:8081"
     environment:
       SERVER_PORT: 8081
       EUREKA_URL: http://eureka-server:8761/eureka
-      # 🔴 Apunta al contenedor maestro
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-server:5432/pacientes_db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: password
-      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      # 🟢 LIMPIO: Ya no requiere JWT_SECRET_KEY porque delegamos la autenticación
     depends_on:
       eureka-server:
         condition: service_healthy
@@ -102,14 +107,39 @@ services:
       retries: 10
     restart: unless-stopped
 
+  # ==========================================
+  # --- DOMINIO DE DOCTORES (MÉDICOS) ---
+  # ==========================================
+  ms-doctores:
+    build: ./ms-doctores
+    container_name: ms-doctores
+    ports:
+      - "8085:8085"
+    environment:
+      SERVER_PORT: 8085
+      EUREKA_URL: http://eureka-server:8761/eureka
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-server:5432/doctores_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: password
+      # 🟢 LIMPIO: Microservicio esbelto sin acoplamiento de infraestructura de llaves
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      postgres-server:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ==========================================
+  # --- LISTAS DE ESPERA ---
+  # ==========================================
   ms-lista-espera:
     build: ./ms-lista-espera
+    container_name: ms-lista-espera
     ports:
       - "8082:8082"
     environment:
       SERVER_PORT: 8082
       EUREKA_URL: http://eureka-server:8761/eureka
-      # 🔴 Apunta al contenedor maestro
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-server:5432/listas_db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: password
@@ -126,8 +156,12 @@ services:
       retries: 10
     restart: unless-stopped
 
+  # ==========================================
+  # --- ASISTENTE DE IA (CHATBOT) ---
+  # ==========================================
   ms-chatbot:
     build: ./ms-chatbot
+    container_name: ms-chatbot
     ports:
       - "8084:8084"
     environment:
@@ -145,10 +179,11 @@ services:
     restart: unless-stopped
 
   # ==========================================
-  # --- GATEWAY ---
+  # --- GATEWAY PERIMETRAL ---
   # ==========================================
   api-gateway:
     build: ./api-gateway
+    container_name: api-gateway
     ports:
       - "8080:8080"
     depends_on:
