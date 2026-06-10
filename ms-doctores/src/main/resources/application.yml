@@ -1,0 +1,22 @@
+server:
+  port: 8085
+
+spring:
+  application:
+    name: ms-doctores
+  datasource:
+    # Si corre en local usa localhost, si corre en Docker-compose usa el nombre del contenedor (postgres-server)
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/doctores_db}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:password}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update # Hibernate creará automáticamente la tabla 'doctores'
+    show-sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}
