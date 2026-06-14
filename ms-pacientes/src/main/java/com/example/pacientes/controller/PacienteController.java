@@ -46,9 +46,9 @@ public class PacienteController {
         return ResponseEntity.ok(pacienteService.obtenerPorEstado(estado));
     }
 
-    // Solo los MÉDICOS pueden crear nuevos pacientes
+    // Médicos pueden crear pacientes, o el sistema de auth al registrar a un paciente
     @PostMapping
-    @PreAuthorize("hasAuthority('ROLE_MEDICO')")
+    @PreAuthorize("hasAnyAuthority('ROLE_MEDICO', 'ROLE_PACIENTE')")
     public ResponseEntity<PacienteResponseDto> crearPaciente(@Valid @RequestBody PacienteRequestDto dto) {
         return ResponseEntity.status(201).body(pacienteService.crear(dto));
     }

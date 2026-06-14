@@ -1,28 +1,54 @@
 package com.example.bff.controller;
 
+import com.example.bff.client.DoctorClient;
 import com.example.bff.client.PacienteClient;
 import feign.FeignException;
-import org.springframework.beans.factory.annotation.Autowired;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
+@SecurityRequirement(name = "BearerAuth")
 @RestController
-@RequestMapping("/bff/dashboard")
+@RequestMapping("/api/bff/dashboard") // 🟢 ALINEADO EXACTAMENTE CON EL API GATEWAY
 public class BffDashboardController {
 
-    @Autowired
-    private PacienteClient pacienteClient;
+    private final PacienteClient pacienteClient;
+    private final DoctorClient doctorClient;
 
-    @GetMapping("/patients")
-    public ResponseEntity<?> getPatients() {
+    // Inyección de dependencias por constructor
+    public BffDashboardController(PacienteClient pacienteClient, DoctorClient doctorClient) {
+        this.pacienteClient = pacienteClient;
+        this.doctorClient = doctorClient;
+    }
+
+    // El Dashboard de Angular llamará a esta ruta
+    @GetMapping("/{authId}")
+    public ResponseEntity<Map<String, Object>> obtenerDashboardCompleto(@PathVariable Long authId) {
+        Map<String, Object> dashboardResponse = new HashMap<>();
+
+        // 1. Orquestación: Ir a buscar el Perfil del Doctor
         try {
-            // Intenta buscar los pacientes en el microservicio real
-            return pacienteClient.getPacientes();
-        } catch (FeignException.NotFound e) {
-            // 🔴 Si ms-pacientes devuelve 404, lo atrapamos aquí
-            return ResponseEntity.status(404).body("{\"error\": \"El microservicio ms-pacientes no tiene la ruta /api/pacientes o no devolvió nada\"}");
+            ResponseEntity<?> doctorResponse = doctorClient.obtenerPorAuthId(authId);
+            dashboardResponse.put("perfilDoctor", doctorResponse.getBody());
         } catch (FeignException e) {
-            return ResponseEntity.status(e.status()).body(e.contentUTF8());
+            // Tolerancia a fallos: Si el microservicio de doctores cae, el dashboard no explota
+            dashboardResponse.put("perfilDoctor", null);
+            dashboardResponse.put("alertaDoctor", "No se pudo cargar el perfil del médico");
         }
+
+        // 2. Orquestación: Ir a buscar los Pacientes
+        try {
+            ResponseEntity<?> pacientesResponse = pacienteClient.getPacientes();
+            dashboardResponse.put("listaPacientes", pacientesResponse.getBody());
+        } catch (FeignException e) {
+            dashboardResponse.put("listaPacientes", null);
+            dashboardResponse.put("alertaPacientes", "Los pacientes no están disponibles en este momento");
+        }
+
+        // 3. Devolver el JSON perfectamente ensamblado
+        return ResponseEntity.ok(dashboardResponse);
     }
 }

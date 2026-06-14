@@ -42,4 +42,9 @@ public class DoctorService {
     public Optional<Doctor> buscarPorAuthId(Long authId) {
         return doctorRepository.findByAuthId(authId);
     }
+
+    @Transactional(readOnly = true)
+    public java.util.List<Doctor> buscarPorEspecialidad(String especialidad) {
+        return doctorRepository.findByEspecialidad(especialidad);
+    }
 }

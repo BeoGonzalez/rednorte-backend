@@ -4,7 +4,13 @@ server:
 spring:
   application:
     name: bff
+
 eureka:
   client:
     service-url:
       defaultZone: http://eureka-server:8761/eureka/
+
+# Logging para depurar llamadas Feign
+logging:
+  level:
+    com.example.bff.client: DEBUG

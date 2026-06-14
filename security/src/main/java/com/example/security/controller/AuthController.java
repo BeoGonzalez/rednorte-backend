@@ -30,8 +30,16 @@ public class AuthController {
         this.passwordEncoder = pe;
     }
 
+    /**
+     * REGISTRO SIMPLIFICADO (Principio de Responsabilidad Única).
+     * Este microservicio SOLO crea el Usuario en su propia base de datos.
+     * La orquestación de crear perfiles en otros microservicios
+     * la hace el BFF usando OpenFeign.
+     * 
+     * Devuelve el authId generado para que el BFF pueda propagarlo.
+     */
     @PostMapping("/register")
-    public ResponseEntity<Map<String, String>> register(@RequestBody RegisterRequestDto request) {
+    public ResponseEntity<Map<String, Object>> register(@RequestBody RegisterRequestDto request) {
         if (usuarioRepository.findByUsername(request.getUsername()).isPresent()) {
             return ResponseEntity.badRequest().body(Map.of("error", "Usuario ya existe"));
         }
@@ -42,8 +50,13 @@ public class AuthController {
         String rolFinal = (request.getRol() != null) ? request.getRol() : "ROLE_PACIENTE";
         user.setRol(rolFinal);
 
-        usuarioRepository.save(user);
-        return ResponseEntity.ok(Map.of("mensaje", "Usuario registrado como " + rolFinal));
+        user = usuarioRepository.save(user);
+
+        // Devolvemos el authId para que el BFF lo use al crear perfiles
+        Map<String, Object> response = new HashMap<>();
+        response.put("mensaje", "Usuario registrado como " + rolFinal);
+        response.put("authId", user.getId());
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/login")
@@ -51,7 +64,6 @@ public class AuthController {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
         UserDetails userDetails = userDetailsService.loadUserByUsername(request.getUsername());
 
-        // 🟢 SOLUCIÓN: Extraer el rol real del usuario desde sus authorities
         String rol = userDetails.getAuthorities().stream()
                 .map(auth -> auth.getAuthority())
                 .findFirst()
@@ -60,12 +72,10 @@ public class AuthController {
         Map<String, Object> extraClaims = new HashMap<>();
         extraClaims.put("rol", rol);
 
-        // Generamos el token inyectando el claim de seguridad estructurado
         String jwtToken = jwtService.generateToken(extraClaims, userDetails);
         return ResponseEntity.ok(Map.of("token", jwtToken));
     }
 
-    // 🔴 NUEVO ENDPOINT SENIOR: Valida de forma centralizada cualquier token del ecosistema
     @GetMapping("/validate")
     public ResponseEntity<Map<String, Object>> validateToken(@RequestParam("token") String token) {
         if (jwtService.isTokenValid(token)) {

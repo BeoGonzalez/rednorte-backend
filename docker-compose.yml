@@ -17,6 +17,7 @@ services:
     volumes:
       # Inyecta el script para crear las 4 bases de datos automáticamente (security, pacientes, doctores, listas)
       - ./postgres-init/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - postgres-data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
@@ -188,3 +189,6 @@ services:
       - "8080:8080"
     depends_on:
       - eureka-server
+
+volumes:
+  postgres-data:

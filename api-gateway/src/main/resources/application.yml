@@ -9,6 +9,7 @@ spring:
       discovery:
         locator:
           enabled: true
+          lower-case-service-id: true # 💡 Truco Senior: Evita problemas si Eureka registra IDs en mayúsculas o minúsculas
       globalcors:
         add-to-simple-url-handler-mapping: true
         cors-configurations:
@@ -23,26 +24,49 @@ spring:
             allowedHeaders: "*"
             allowCredentials: true
       routes:
-        - id: ruta-pacientes
-          uri: lb://ms-pacientes
-          predicates:
-            - Path=/api/pacientes/**
-
-        - id: ms-lista-espera
-          uri: lb://ms-lista-espera
-          predicates:
-            - Path=/api/lista-espera/**
-
-        - id: ruta-bff
-          uri: lb://bff
-          predicates:
-            - Path=/bff/**
-
+        # ==========================================
+        # 1. SEGURIDAD Y AUTENTICACIÓN
+        # ==========================================
         - id: ruta-security
           uri: lb://security
           predicates:
             - Path=/api/auth/**
 
+        # ==========================================
+        # 2. BACKEND FOR FRONTEND (ORQUESTADOR)
+        # ==========================================
+        - id: ruta-bff
+          uri: lb://bff
+          predicates:
+            - Path=/api/bff/** # 🟢 ALINEADO: Ahora coincide perfectamente con los controladores del BFF
+
+        # ==========================================
+        # 3. DOMINIO DE PACIENTES
+        # ==========================================
+        - id: ruta-pacientes
+          uri: lb://ms-pacientes
+          predicates:
+            - Path=/api/pacientes/**
+
+        # ==========================================
+        # 4. DOMINIO DE DOCTORES (MÉDICOS)
+        # ==========================================
+        - id: ruta-doctores
+          uri: lb://ms-doctores # 🟢 AGREGADO: Crucial para interactuar con los perfiles médicos
+          predicates:
+            - Path=/api/doctores/**
+
+        # ==========================================
+        # 5. LISTAS DE ESPERA
+        # ==========================================
+        - id: ms-lista-espera
+          uri: lb://ms-lista-espera
+          predicates:
+            - Path=/api/lista-espera/**
+
+        # ==========================================
+        # 6. ASISTENTE DE IA (CHATBOT)
+        # ==========================================
         - id: ms-chatbot
           uri: lb://ms-chatbot
           predicates:
