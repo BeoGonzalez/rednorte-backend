@@ -5,6 +5,7 @@ import com.example.bff.client.PacienteClient;
 import feign.FeignException;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -55,6 +56,7 @@ public class BffDashboardController {
      * @return {@link ResponseEntity} con un mapa que contiene los perfiles orquestados y sus alertas si ocurrieron errores.
      */
     @GetMapping("/{authId}")
+    @PreAuthorize("hasAuthority('ROLE_MEDICO')")
     public ResponseEntity<Map<String, Object>> obtenerDashboardCompleto(@PathVariable Long authId) {
         Map<String, Object> dashboardResponse = new HashMap<>();
 

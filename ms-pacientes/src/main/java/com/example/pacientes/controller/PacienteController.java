@@ -3,6 +3,7 @@ package com.example.pacientes.controller;
 import com.example.pacientes.dto.PacienteResponseDto;
 import com.example.pacientes.dto.PacienteRequestDto;
 import com.example.pacientes.service.PacienteService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,7 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/api/pacientes")
+@SecurityRequirement(name = "BearerAuth")
 public class PacienteController {
 
     private final PacienteService pacienteService;

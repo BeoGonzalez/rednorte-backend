@@ -4,8 +4,10 @@ import com.example.security.dto.*;
 import com.example.security.entity.Usuario;
 import com.example.security.repository.UsuarioRepository;
 import com.example.security.service.JwtService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -73,6 +75,7 @@ public class AuthController {
 
         user = usuarioRepository.save(user);
 
+        // Devolvemos el authId para que el BFF lo use al crear perfiles
         Map<String, Object> response = new HashMap<>();
         response.put("mensaje", "Usuario registrado como " + rolFinal);
         response.put("authId", user.getId());
@@ -116,6 +119,8 @@ public class AuthController {
      * @return {@link ResponseEntity} con el estado de validación y la información extraída del token.
      */
     @GetMapping("/validate")
+    @SecurityRequirement(name = "BearerAuth")
+    @PreAuthorize("hasAnyAuthority('ROLE_MEDICO', 'ROLE_PACIENTE')")
     public ResponseEntity<Map<String, Object>> validateToken(@RequestParam("token") String token) {
         if (jwtService.isTokenValid(token)) {
             String username = jwtService.extractUsername(token);

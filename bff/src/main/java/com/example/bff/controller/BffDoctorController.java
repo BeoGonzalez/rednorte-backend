@@ -2,8 +2,10 @@ package com.example.bff.controller;
 
 import com.example.bff.client.DoctorClient;
 import feign.FeignException;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/bff/doctores")
+@SecurityRequirement(name = "BearerAuth")
 public class BffDoctorController {
 
     @Autowired
@@ -28,11 +31,13 @@ public class BffDoctorController {
      * no responde o devuelve un error, se captura la excepción y se propaga la respuesta
      * de error original (código de estado y cuerpo) hacia el cliente que realizó la petición.
      * </p>
+     * <p><b>Control de Acceso:</b> Permitido para usuarios con rol 'ROLE_MEDICO' y 'ROLE_PACIENTE'.</p>
      *
      * @param authId El identificador de autenticación del médico.
      * @return {@link ResponseEntity} con los datos del médico o la respuesta de error del servicio remoto.
      */
     @GetMapping("/auth/{authId}")
+    @PreAuthorize("hasAnyAuthority('ROLE_MEDICO', 'ROLE_PACIENTE')")
     public ResponseEntity<?> obtenerPorAuthId(@PathVariable Long authId) {
         try {
             return doctorClient.obtenerPorAuthId(authId);
@@ -48,11 +53,13 @@ public class BffDoctorController {
      * maneja las excepciones de Feign devolviendo el estado HTTP y el mensaje de error
      * correspondiente proveniente del backend.
      * </p>
+     * <p><b>Control de Acceso:</b> Permitido para usuarios con rol 'ROLE_MEDICO' y 'ROLE_PACIENTE'.</p>
      *
      * @param especialidad El nombre de la especialidad para realizar el filtrado.
      * @return {@link ResponseEntity} con la lista de médicos encontrados o el error recibido del servicio remoto.
      */
     @GetMapping("/especialidad/{especialidad}")
+    @PreAuthorize("hasAnyAuthority('ROLE_MEDICO', 'ROLE_PACIENTE')")
     public ResponseEntity<?> obtenerPorEspecialidad(@PathVariable String especialidad) {
         try {
             return doctorClient.obtenerPorEspecialidad(especialidad);
