@@ -12,6 +12,15 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
+/**
+ * Controlador REST encargado de la gestión de identidades, autenticación y autorización.
+ * <p>
+ * Este controlador actúa como el punto de entrada para el microservicio de seguridad ({@code ms-security}).
+ * Proporciona endpoints para el registro de usuarios, emisión de tokens JWT y validación
+ * de credenciales. Sigue el principio de responsabilidad única al centrarse exclusivamente
+ * en la autenticación, delegando la orquestación de perfiles complejos al BFF.
+ * </p>
+ */
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "http://localhost:4200")
@@ -22,6 +31,9 @@ public class AuthController {
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
 
+    /**
+     * Inyección de dependencias necesaria para la gestión de seguridad y persistencia.
+     */
     public AuthController(AuthenticationManager am, UserDetailsService uds, JwtService js, UsuarioRepository ur, PasswordEncoder pe) {
         this.authenticationManager = am;
         this.userDetailsService = uds;
@@ -31,12 +43,21 @@ public class AuthController {
     }
 
     /**
-     * REGISTRO SIMPLIFICADO (Principio de Responsabilidad Única).
-     * Este microservicio SOLO crea el Usuario en su propia base de datos.
-     * La orquestación de crear perfiles en otros microservicios
-     * la hace el BFF usando OpenFeign.
-     * 
-     * Devuelve el authId generado para que el BFF pueda propagarlo.
+     * Registra un nuevo usuario en el sistema de seguridad.
+     * <p>
+     * Este método implementa un registro simplificado:
+     * <ol>
+     * <li>Valida si el nombre de usuario ya existe.</li>
+     * <li>Codifica la contraseña.</li>
+     * <li>Asigna un rol por defecto (ROLE_PACIENTE) si no se especifica.</li>
+     * <li>Persiste el usuario y retorna su {@code authId}.</li>
+     * </ol>
+     * <b>Nota:</b> La creación de perfiles asociados (médico o paciente) se realiza
+     * posteriormente a través del BFF.
+     * </p>
+     *
+     * @param request Datos de registro (username, password, rol).
+     * @return {@link ResponseEntity} con el ID de autenticación generado y un mensaje de éxito.
      */
     @PostMapping("/register")
     public ResponseEntity<Map<String, Object>> register(@RequestBody RegisterRequestDto request) {
@@ -52,13 +73,22 @@ public class AuthController {
 
         user = usuarioRepository.save(user);
 
-        // Devolvemos el authId para que el BFF lo use al crear perfiles
         Map<String, Object> response = new HashMap<>();
         response.put("mensaje", "Usuario registrado como " + rolFinal);
         response.put("authId", user.getId());
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * Autentica a un usuario y genera un token JWT.
+     * <p>
+     * Valida las credenciales contra {@link AuthenticationManager} y, en caso exitoso,
+     * extrae los roles del usuario para incluirlos como <i>claims</i> dentro del token JWT.
+     * </p>
+     *
+     * @param request Credenciales de acceso (username, password).
+     * @return {@link ResponseEntity} con el token JWT generado.
+     */
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequestDto request) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
@@ -76,6 +106,15 @@ public class AuthController {
         return ResponseEntity.ok(Map.of("token", jwtToken));
     }
 
+    /**
+     * Valida la integridad y vigencia de un token JWT.
+     * <p>
+     * Extrae el nombre de usuario y los roles (claims) del token si este resulta ser válido.
+     * </p>
+     *
+     * @param token El token JWT a validar.
+     * @return {@link ResponseEntity} con el estado de validación y la información extraída del token.
+     */
     @GetMapping("/validate")
     public ResponseEntity<Map<String, Object>> validateToken(@RequestParam("token") String token) {
         if (jwtService.isTokenValid(token)) {

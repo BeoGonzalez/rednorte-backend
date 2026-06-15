@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.3.5</version> <relativePath/>
+		<version>4.1.0</version> <relativePath/>
 	</parent>
 	<groupId>com.example</groupId>
 	<artifactId>security</artifactId>
@@ -14,8 +14,7 @@
 	<description>Microservicio de Seguridad</description>
 
 	<properties>
-		<java.version>17</java.version>
-		<spring-cloud.version>2023.0.3</spring-cloud.version> </properties>
+		<java.version>17</java.version> <spring-cloud.version>2025.1.0</spring-cloud.version> </properties>
 
 	<dependencies>
 		<dependency>
@@ -28,10 +27,22 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId> </dependency>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-redis</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-redis-test</artifactId>
+			<scope>test</scope>
 		</dependency>
 
 		<dependency>
