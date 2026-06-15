@@ -57,3 +57,16 @@ Para levantar la infraestructura completa (PostgreSQL, Redis, RabbitMQ y Eureka)
 
 ```bash
 docker-compose up -d
+Una vez levantada la infraestructura, cada microservicio puede ser ejecutado de forma independiente mediante Maven:
+
+Bash
+./mvnw spring-boot:run
+Seguridad
+La autenticación se realiza mediante tokens JWT. El microservicio ms-security gestiona la emisión, mientras que el resto de los servicios validan la integridad del token en cada petición. Las rutas están protegidas mediante control de acceso basado en roles (RBAC) utilizando las anotaciones @PreAuthorize('hasAuthority(...)').
+
+Documentación API
+Cada microservicio expone su documentación a través de Swagger UI. Al levantar los servicios, puede acceder a la documentación interactiva en:
+
+http://localhost:<puerto>/swagger-ui.html
+
+Este proyecto sigue los estándares de arquitectura de microservicios robustos, priorizando la resiliencia, la seguridad y la desacoplación de componentes.
