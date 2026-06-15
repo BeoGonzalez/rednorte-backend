@@ -30,6 +30,25 @@ spring:
       host: ${SPRING_DATA_REDIS_HOST:localhost}
       port: ${SPRING_DATA_REDIS_PORT:6379}
 
+  # 🟢 CONFIGURACIÓN DE CONEXIÓN A RABBITMQ
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: 5672
+    username: ${RABBITMQ_USER:guest}
+    password: ${RABBITMQ_PASS:guest}
+
+  # 🟢 CONFIGURACIÓN DE SPRING CLOUD STREAM (CONSUMIDOR)
+  cloud:
+    stream:
+      function:
+        # Le decimos a Spring qué métodos (Beans) actuarán como listeners
+        definition: procesarCitaAsignada
+      bindings:
+        # El canal de entrada se nombra: nombreMetodo-in-0
+        procesarCitaAsignada-in-0:
+          destination: citas-events-exchange # Debe coincidir con el destination del productor (ms-lista-espera)
+          group: ms-pacientes-group # Cola persistente específica para este microservicio
+
 eureka:
   client:
     register-with-eureka: true

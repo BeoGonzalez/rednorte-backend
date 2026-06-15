@@ -2,6 +2,18 @@ version: '3.8'
 
 services:
 
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: rednorte-rabbitmq
+    ports:
+      - "5672:5672"   # Puerto de comunicación para los microservicios
+      - "15672:15672" # Panel de administración web (Usuario: guest / Pass: guest)
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      - rednorte-network
+
   # ==========================================
   # --- CAPA DE CACHÉ (REDIS) ---
   # ==========================================
