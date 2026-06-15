@@ -3,6 +3,7 @@ package com.example.ms_lista_espera.controller;
 import com.example.ms_lista_espera.dto.RegistroSolicitudDto;
 import com.example.ms_lista_espera.dto.SolicitudResponseDto;
 import com.example.ms_lista_espera.service.ListaEsperaService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,7 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/api/listas-espera")
+@SecurityRequirement(name = "BearerAuth")
 public class ListaEsperaController {
 
     private final ListaEsperaService listaEsperaService;
@@ -41,6 +43,7 @@ public class ListaEsperaController {
      * @return {@link ResponseEntity} con la lista de solicitudes ordenadas por prioridad.
      */
     @GetMapping
+    @PreAuthorize("hasAuthority('ROLE_MEDICO')")
     public ResponseEntity<List<SolicitudResponseDto>> obtenerListaPriorizada() {
         return ResponseEntity.ok(listaEsperaService.obtenerListaPriorizada());
     }
@@ -58,6 +61,7 @@ public class ListaEsperaController {
      * @return {@link ResponseEntity} con el detalle de la solicitud.
      */
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('ROLE_MEDICO', 'ROLE_PACIENTE')")
     public ResponseEntity<SolicitudResponseDto> obtenerPorId(
             @PathVariable Long id,
             @RequestHeader("Authorization") String token) {
@@ -91,6 +95,7 @@ public class ListaEsperaController {
      * @return {@link ResponseEntity} con la lista de solicitudes encontradas.
      */
     @GetMapping("/estado/{estado}")
+    @PreAuthorize("hasAuthority('ROLE_MEDICO')")
     public ResponseEntity<List<SolicitudResponseDto>> obtenerPorEstado(@PathVariable String estado) {
         return ResponseEntity.ok(listaEsperaService.obtenerPorEstado(estado));
     }
@@ -107,6 +112,7 @@ public class ListaEsperaController {
      * @return {@link ResponseEntity} con la solicitud creada y estado HTTP 201 (Created).
      */
     @PostMapping("/registro")
+    @PreAuthorize("hasAnyAuthority('ROLE_MEDICO', 'ROLE_PACIENTE')")
     public ResponseEntity<SolicitudResponseDto> registrar(
             @RequestBody RegistroSolicitudDto dto,
             @RequestHeader("Authorization") String token) {
@@ -122,6 +128,7 @@ public class ListaEsperaController {
      * @return {@link ResponseEntity} con la solicitud actualizada.
      */
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('ROLE_MEDICO')")
     public ResponseEntity<SolicitudResponseDto> actualizarCompleto(
             @PathVariable Long id,
             @RequestBody RegistroSolicitudDto dto) {
@@ -137,6 +144,7 @@ public class ListaEsperaController {
      * @return {@link ResponseEntity} con la solicitud reflejando los cambios.
      */
     @PatchMapping("/{id}")
+    @PreAuthorize("hasAuthority('ROLE_MEDICO')")
     public ResponseEntity<SolicitudResponseDto> actualizarParcial(
             @PathVariable Long id,
             @RequestBody Map<String, Object> campos) {
@@ -150,6 +158,7 @@ public class ListaEsperaController {
      * @return {@link ResponseEntity} sin contenido (204) tras la eliminación exitosa.
      */
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ROLE_MEDICO')")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         listaEsperaService.eliminar(id);
         return ResponseEntity.noContent().build();

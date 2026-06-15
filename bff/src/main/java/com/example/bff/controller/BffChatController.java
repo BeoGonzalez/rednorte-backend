@@ -2,8 +2,10 @@ package com.example.bff.controller;
 
 import com.example.bff.client.ChatClient;
 import feign.FeignException;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -19,6 +21,7 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/bff/chat")
+@SecurityRequirement(name = "BearerAuth")
 public class BffChatController {
 
     @Autowired
@@ -31,12 +34,14 @@ public class BffChatController {
      * correspondiente. Implementa un manejo de errores robusto para capturar fallos de comunicación
      * vía {@link FeignException}.
      * </p>
+     * <p><b>Control de Acceso:</b> Permitido para usuarios con rol 'ROLE_MEDICO' y 'ROLE_PACIENTE'.</p>
      *
      * @param request Mapa con el contenido de la consulta o contexto necesario para el chatbot.
      * @return ResponseEntity con la respuesta proveniente del servicio de chat,
      * o el mensaje de error propagado si la comunicación falla.
      */
     @PostMapping("/preguntar")
+    @PreAuthorize("hasAnyAuthority('ROLE_MEDICO', 'ROLE_PACIENTE')")
     public ResponseEntity<?> preguntar(@RequestBody Map<String, Object> request) {
         try {
             return chatClient.preguntar(request);

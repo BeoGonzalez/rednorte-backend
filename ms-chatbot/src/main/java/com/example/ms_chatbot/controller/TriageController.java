@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 import org.springframework.ai.chat.model.ChatResponse;
@@ -53,6 +54,7 @@ public class TriageController {
      * @return Un mapa consolidado con la clave "resultado" (respuesta de la IA) y "total_tokens" (uso acumulado de la sesión).
      */
     @PostMapping("/triage")
+    @PreAuthorize("hasAnyAuthority('ROLE_MEDICO', 'ROLE_PACIENTE')")
     @Operation(summary = "Procesar síntomas", description = "Envía los síntomas del paciente a la IA para recibir un pre-diagnóstico y orientación médica.")
     public Map<String, Object> procesarSintomas(@RequestBody Map<String, String> request) {
         String sintomas = request != null ? request.get("sintomas") : null;

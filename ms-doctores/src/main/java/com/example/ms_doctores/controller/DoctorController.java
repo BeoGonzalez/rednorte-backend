@@ -8,6 +8,7 @@ import com.example.ms_doctores.entity.Doctor;
 import com.example.ms_doctores.exception.ResourceNotFoundException;
 import com.example.ms_doctores.service.DoctorService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -47,6 +48,7 @@ public class DoctorController {
      * @return {@link ResponseEntity} conteniendo la entidad {@link Doctor} recién creada.
      */
     @PostMapping("/perfil")
+    @PreAuthorize("hasAuthority('ROLE_MEDICO')")
     @Operation(
             summary = "Crear un nuevo perfil médico",
             description = "Registra los datos profesionales de un doctor (nombre, especialidad, registro médico) y lo vincula a su Auth ID."
@@ -67,6 +69,7 @@ public class DoctorController {
      * @return {@link ResponseEntity} con la entidad {@link Doctor} encontrada, o 404 Not Found si no existe.
      */
     @GetMapping("/auth/{authId}")
+    @PreAuthorize("hasAnyAuthority('ROLE_MEDICO', 'ROLE_PACIENTE')")
     @Operation(
             summary = "Buscar doctor por Auth ID",
             description = "Obtiene la información pública de un médico utilizando el identificador de su cuenta de seguridad central."
