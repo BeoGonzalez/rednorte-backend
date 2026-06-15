@@ -11,6 +11,15 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Controlador de Backend For Frontend (BFF) para el proceso de autenticación.
+ * <p>
+ * Este controlador actúa como un orquestador para las operaciones de registro y login.
+ * Su responsabilidad principal es unificar las llamadas a múltiples microservicios
+ * (seguridad, doctores y pacientes) en una sola petición desde el frontend,
+ * simplificando la lógica de integración para los clientes.
+ * </p>
+ */
 @RestController
 @RequestMapping("/bff/auth")
 public class BffAuthController {
@@ -25,12 +34,20 @@ public class BffAuthController {
     private PacienteClient pacienteClient;
 
     /**
-     * OPERACIÓN ORQUESTADA DE REGISTRO.
-     * 1. Registra al usuario en ms-security.
-     * 2. Si es ROLE_MEDICO → crea perfil en ms-doctores.
-     * 3. Si es ROLE_PACIENTE → crea perfil en ms-pacientes.
+     * Ejecuta una operación orquestada de registro de usuario.
+     * <p>
+     * El flujo de trabajo es el siguiente:
+     * <ol>
+     * <li>Registra al usuario en el microservicio de seguridad ({@code ms-security}).</li>
+     * <li>Si el registro es exitoso y el rol es 'ROLE_MEDICO', crea un perfil en el microservicio de doctores.</li>
+     * <li>Si el registro es exitoso y el rol es 'ROLE_PACIENTE', crea un perfil en el microservicio de pacientes.</li>
+     * </ol>
+     * Las fallas en la creación del perfil (paso 2 o 3) se registran en los logs, pero no interrumpen
+     * la respuesta exitosa de autenticación.
+     * </p>
      *
-     * El frontend hace UN SOLO request y el BFF orquesta todo internamente.
+     * @param payload Mapa con los datos del usuario (rol, nombre, apellidos, especialidad, RUT, etc.).
+     * @return ResponseEntity con la respuesta del microservicio de seguridad.
      */
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody Map<String, Object> payload) {
@@ -49,7 +66,6 @@ public class BffAuthController {
         if ("ROLE_MEDICO".equals(rol)) {
             try {
                 Map<String, Object> doctorPayload = new HashMap<>();
-                // El authId viene del response de security (si lo devuelve) o lo omitimos por ahora
                 doctorPayload.put("nombre", payload.get("nombre"));
                 doctorPayload.put("apellidos", payload.get("apellidos"));
                 doctorPayload.put("specialty", payload.get("specialty"));
@@ -76,6 +92,15 @@ public class BffAuthController {
         return authResponse;
     }
 
+    /**
+     * Proxy para la operación de inicio de sesión.
+     * <p>
+     * Reenvía las credenciales al microservicio de seguridad y retorna el token o la respuesta de error correspondiente.
+     * </p>
+     *
+     * @param payload Credenciales del usuario (ej. nombre de usuario y contraseña).
+     * @return ResponseEntity con la respuesta del microservicio de autenticación.
+     */
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Object payload) {
         try {

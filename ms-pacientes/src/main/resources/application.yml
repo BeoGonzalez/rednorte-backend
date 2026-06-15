@@ -7,7 +7,7 @@ spring:
 
   datasource:
     # Usamos las variables de entorno de Docker si existen, o localhost si lo corres desde tu IDE
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/rednorte_db}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/pacientes_db} # 🟢 Alineado con la BD de pacientes
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
     password: ${SPRING_DATASOURCE_PASSWORD:password}
     driver-class-name: org.postgresql.Driver
@@ -22,11 +22,20 @@ spring:
       hibernate:
         format_sql: true
 
+  # 🟢 CONFIGURACIÓN DE CACHÉ Y REDIS
+  cache:
+    type: redis
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+
 eureka:
   client:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      defaultZone: http://eureka-server:8761/eureka/
+      # 🟢 Ajustado para ser dinámico entre tu IDE y Docker
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}
   instance:
     prefer-ip-address: true
