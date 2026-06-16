@@ -62,7 +62,7 @@ spring:
         - id: ms-lista-espera
           uri: lb://ms-lista-espera
           predicates:
-            - Path=/api/lista-espera/**
+            - Path=/api/listsa-espera/**
 
         # ==========================================
         # 6. ASISTENTE DE IA (CHATBOT)
