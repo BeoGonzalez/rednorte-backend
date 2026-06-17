@@ -11,91 +11,59 @@ public class SolicitudAtencion {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Solo guardamos el ID del paciente, NO todo el objeto Paciente.
-    // Esto es vital en microservicios para mantenerlos desacoplados.
     @Column(name = "paciente_id", nullable = false)
     private Long pacienteId;
 
-    // Ejemplos: ATENCION_MEDICA, PROCEDIMIENTO, CIRUGIA
+    // Set when a doctor manually accepts or rejects the solicitud
+    @Column(name = "doctor_id")
+    private Long doctorId;
+
     @Column(nullable = false, length = 50)
     private String tipoSolicitud;
 
-    // Ejemplos: ALTA, MEDIA, BAJA
     @Column(nullable = false, length = 20)
     private String gravedad;
 
-    // Ejemplos: PENDIENTE, EN_PROCESO, ATENDIDO, CANCELADO
+    // BUSCANDO_CITA = waiting for a doctor to manually assign (this flow)
+    // PENDIENTE     = waiting for the auto-assign job (AsignadorCitasJob)
     @Column(nullable = false, length = 20)
-    private String estado = "PENDIENTE";
+    private String estado = "BUSCANDO_CITA";
 
     @Column(name = "fecha_solicitud", updatable = false)
     private LocalDateTime fechaSolicitud;
 
-    // Este método se ejecuta automáticamente justo antes de guardar en la BD
     @PrePersist
     protected void onCreate() {
         this.fechaSolicitud = LocalDateTime.now();
     }
 
-    // --- Constructor Vacío (Obligatorio para JPA) ---
-    public SolicitudAtencion() {
-    }
+    public SolicitudAtencion() {}
 
-    // --- Constructor con parámetros (Opcional, pero útil) ---
     public SolicitudAtencion(Long pacienteId, String tipoSolicitud, String gravedad) {
         this.pacienteId = pacienteId;
         this.tipoSolicitud = tipoSolicitud;
         this.gravedad = gravedad;
-        this.estado = "PENDIENTE";
+        this.estado = "BUSCANDO_CITA";
     }
 
-    // --- Getters y Setters ---
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public Long getId() {
-        return id;
-    }
+    public Long getPacienteId() { return pacienteId; }
+    public void setPacienteId(Long pacienteId) { this.pacienteId = pacienteId; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public Long getDoctorId() { return doctorId; }
+    public void setDoctorId(Long doctorId) { this.doctorId = doctorId; }
 
-    public Long getPacienteId() {
-        return pacienteId;
-    }
+    public String getTipoSolicitud() { return tipoSolicitud; }
+    public void setTipoSolicitud(String tipoSolicitud) { this.tipoSolicitud = tipoSolicitud; }
 
-    public void setPacienteId(Long pacienteId) {
-        this.pacienteId = pacienteId;
-    }
+    public String getGravedad() { return gravedad; }
+    public void setGravedad(String gravedad) { this.gravedad = gravedad; }
 
-    public String getTipoSolicitud() {
-        return tipoSolicitud;
-    }
+    public String getEstado() { return estado; }
+    public void setEstado(String estado) { this.estado = estado; }
 
-    public void setTipoSolicitud(String tipoSolicitud) {
-        this.tipoSolicitud = tipoSolicitud;
-    }
-
-    public String getGravedad() {
-        return gravedad;
-    }
-
-    public void setGravedad(String gravedad) {
-        this.gravedad = gravedad;
-    }
-
-    public String getEstado() {
-        return estado;
-    }
-
-    public void setEstado(String estado) {
-        this.estado = estado;
-    }
-
-    public LocalDateTime getFechaSolicitud() {
-        return fechaSolicitud;
-    }
-
-    public void setFechaSolicitud(LocalDateTime fechaSolicitud) {
-        this.fechaSolicitud = fechaSolicitud;
-    }
+    public LocalDateTime getFechaSolicitud() { return fechaSolicitud; }
+    public void setFechaSolicitud(LocalDateTime fechaSolicitud) { this.fechaSolicitud = fechaSolicitud; }
 }

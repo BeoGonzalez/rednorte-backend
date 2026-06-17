@@ -4,25 +4,46 @@ server:
 spring:
   application:
     name: ms-doctores
+
   datasource:
-    # Si corre en local usa localhost, si corre en Docker-compose usa el nombre del contenedor (postgres-server)
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/doctores_db}
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
     password: ${SPRING_DATASOURCE_PASSWORD:password}
     driver-class-name: org.postgresql.Driver
+
   jpa:
     hibernate:
-      ddl-auto: update # Hibernate creará automáticamente la tabla 'doctores'
+      ddl-auto: update
     show-sql: true
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
-  # 🟢 AQUÍ ESTÁ LO QUE FALTABA: Configuración de Caché y Redis
   cache:
     type: redis
   data:
     redis:
       host: ${SPRING_DATA_REDIS_HOST:localhost}
       port: ${SPRING_DATA_REDIS_PORT:6379}
+
+  rabbitmq:
+    host: ${SPRING_RABBITMQ_HOST:localhost}
+    port: 5672
+    username: ${SPRING_RABBITMQ_USERNAME:guest}
+    password: ${SPRING_RABBITMQ_PASSWORD:guest}
+    connection-name: ${spring.application.name}
+
+  cloud:
+    stream:
+      function:
+        definition: procesarCitaActualizada
+      bindings:
+        procesarCitaActualizada-in-0:
+          destination: citas-events-exchange
+          group: ms-doctores-actualizada-group
+      rabbit:
+        bindings:
+          procesarCitaActualizada-in-0:
+            consumer:
+              binding-routing-key: cita.actualizada
 
 eureka:
   client:

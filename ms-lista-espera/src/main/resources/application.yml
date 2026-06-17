@@ -20,32 +20,36 @@ spring:
       hibernate:
         format_sql: true
 
-  # 🟢 CONFIGURACIÓN DE CONEXIÓN A RABBITMQ
   rabbitmq:
-    host: ${RABBITMQ_HOST:localhost} # Permite inyectar el host desde docker-compose
+    host: ${SPRING_RABBITMQ_HOST:localhost}
     port: 5672
-    username: ${RABBITMQ_USER:guest}
-    password: ${RABBITMQ_PASS:guest}
+    username: ${SPRING_RABBITMQ_USERNAME:guest}
+    password: ${SPRING_RABBITMQ_PASSWORD:guest}
+    connection-name: ${spring.application.name}
 
-  # 🟢 CONFIGURACIÓN DE SPRING CLOUD STREAM (PRODUCTOR)
   cloud:
     stream:
       bindings:
-        # El nombre del canal (debe coincidir exactamente con el que pongas en streamBridge.send())
+        # Auto-assign flow (AsignadorCitasJob)
         citaAsignada-out-0:
-          destination: citas-events-exchange # El nombre del Topic (Exchange) en RabbitMQ
+          destination: citas-events-exchange
+        # Manual doctor decision flow (ListaEsperaService.actualizarParcial)
+        citaActualizada-out-0:
+          destination: citas-events-exchange
       rabbit:
         bindings:
           citaAsignada-out-0:
             producer:
-              routing-key: cita.creada # La llave de enrutamiento del mensaje
+              routing-key: cita.creada
+          citaActualizada-out-0:
+            producer:
+              routing-key: cita.actualizada
 
 eureka:
   client:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      # Tip: Usar la variable de entorno aquí igual que hiciste en ms-pacientes te evitará problemas al probar localmente
       defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}
   instance:
     prefer-ip-address: true

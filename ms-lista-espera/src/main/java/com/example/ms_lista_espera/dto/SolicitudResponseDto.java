@@ -5,11 +5,11 @@ import java.time.LocalDateTime;
 public record SolicitudResponseDto(
         Long id,
         Long pacienteId,
-        String rutPaciente,    // ¡Este dato viene del ms-pacientes!
-        String nombrePaciente, // ¡Este dato viene del ms-pacientes!
+        String rutPaciente,
+        String nombrePaciente,
         String tipoSolicitud,
         String gravedad,
         String estado,
-        LocalDateTime fechaSolicitud
-) {
-}
+        LocalDateTime fechaSolicitud,
+        Long doctorId           // populated when a doctor acts; used as FASE 4 event payload
+) {}

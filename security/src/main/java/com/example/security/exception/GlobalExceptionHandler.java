@@ -173,12 +173,16 @@ public class GlobalExceptionHandler {
             Exception exception,
             HttpServletRequest request
     ) {
+        exception.printStackTrace();
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+        String message = exception.getMessage() != null
+                ? exception.getMessage()
+                : "Ocurrió un error interno inesperado.";
         return ResponseEntity.status(status)
                 .body(ErrorResponseDto.of(
                         status.value(),
                         status.getReasonPhrase(),
-                        "Ocurrió un error interno inesperado.",
+                        message,
                         request.getRequestURI()
                 ));
     }

@@ -20,7 +20,6 @@
         <module>ms-lista-espera</module>
         <module>bff</module>
         <module>security</module>
-        <module>ms-chatbot</module>
         <module>ms-doctores</module>
     </modules>
 
