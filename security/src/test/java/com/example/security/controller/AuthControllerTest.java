@@ -91,10 +91,14 @@ class AuthControllerTest {
         when(userDetailsService.loadUserByUsername("usuario_existente")).thenReturn(userDetails);
         when(jwtService.generateToken(anyMap(), eq(userDetails))).thenReturn("mockJwtToken");
 
-        ResponseEntity<Map<String, String>> response = authController.login(loginDto);
+        // 🟢 CORRECCIÓN: Cambiado de ResponseEntity<Map<String, String>> a ResponseEntity<Map<String, Object>>
+        ResponseEntity<Map<String, Object>> response = authController.login(loginDto);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        // El token sigue siendo un String, pero ahora lo extraemos de un Map de Objects
         assertEquals("mockJwtToken", response.getBody().get("token"));
+
         verify(authenticationManager, times(1)).authenticate(any(UsernamePasswordAuthenticationToken.class));
     }
 

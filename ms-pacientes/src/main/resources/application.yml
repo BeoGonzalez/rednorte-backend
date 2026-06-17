@@ -6,8 +6,7 @@ spring:
     name: ms-pacientes
 
   datasource:
-    # Usamos las variables de entorno de Docker si existen, o localhost si lo corres desde tu IDE
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/pacientes_db} # 🟢 Alineado con la BD de pacientes
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/pacientes_db}
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
     password: ${SPRING_DATASOURCE_PASSWORD:password}
     driver-class-name: org.postgresql.Driver
@@ -15,14 +14,12 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      # Cambiamos a 'update' para que tus datos no se borren cada vez que reinicias
       ddl-auto: update
     show-sql: true
     properties:
       hibernate:
         format_sql: true
 
-  # 🟢 CONFIGURACIÓN DE CACHÉ Y REDIS
   cache:
     type: redis
   data:
@@ -30,31 +27,40 @@ spring:
       host: ${SPRING_DATA_REDIS_HOST:localhost}
       port: ${SPRING_DATA_REDIS_PORT:6379}
 
-  # 🟢 CONFIGURACIÓN DE CONEXIÓN A RABBITMQ
   rabbitmq:
-    host: ${RABBITMQ_HOST:localhost}
+    host: ${SPRING_RABBITMQ_HOST:localhost}
     port: 5672
-    username: ${RABBITMQ_USER:guest}
-    password: ${RABBITMQ_PASS:guest}
+    username: ${SPRING_RABBITMQ_USERNAME:guest}
+    password: ${SPRING_RABBITMQ_PASSWORD:guest}
+    connection-name: ${spring.application.name}
 
-  # 🟢 CONFIGURACIÓN DE SPRING CLOUD STREAM (CONSUMIDOR)
   cloud:
     stream:
       function:
-        # Le decimos a Spring qué métodos (Beans) actuarán como listeners
-        definition: procesarCitaAsignada
+        definition: procesarCitaAsignada;procesarCitaActualizada
       bindings:
-        # El canal de entrada se nombra: nombreMetodo-in-0
+        # Auto-assign events (routing key: cita.creada)
         procesarCitaAsignada-in-0:
-          destination: citas-events-exchange # Debe coincidir con el destination del productor (ms-lista-espera)
-          group: ms-pacientes-group # Cola persistente específica para este microservicio
+          destination: citas-events-exchange
+          group: ms-pacientes-asignada-group
+        # Manual doctor decision events (routing key: cita.actualizada)
+        procesarCitaActualizada-in-0:
+          destination: citas-events-exchange
+          group: ms-pacientes-actualizada-group
+      rabbit:
+        bindings:
+          procesarCitaAsignada-in-0:
+            consumer:
+              binding-routing-key: cita.creada
+          procesarCitaActualizada-in-0:
+            consumer:
+              binding-routing-key: cita.actualizada
 
 eureka:
   client:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      # 🟢 Ajustado para ser dinámico entre tu IDE y Docker
       defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}
   instance:
     prefer-ip-address: true

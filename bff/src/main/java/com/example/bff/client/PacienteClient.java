@@ -18,6 +18,9 @@ public interface PacienteClient {
             @PathVariable("id") Long id,
             @RequestHeader("Authorization") String token);
 
+    @GetMapping("/api/pacientes/auth/{authId}")
+    ResponseEntity<?> obtenerPorAuthId(@PathVariable("authId") Long authId);
+
     @PostMapping("/api/pacientes")
     ResponseEntity<?> crearPaciente(@RequestBody Map<String, Object> request);
 }

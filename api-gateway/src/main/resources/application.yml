@@ -1,5 +1,7 @@
 server:
   port: 8080
+  # 🟢 ESTO ES OBLIGATORIO: Evita que el navegador intente conectar a los IDs de los contenedores Docker
+  forward-headers-strategy: native
 
 spring:
   application:
@@ -9,64 +11,33 @@ spring:
       discovery:
         locator:
           enabled: true
-          lower-case-service-id: true # 💡 Truco Senior: Evita problemas si Eureka registra IDs en mayúsculas o minúsculas
-      globalcors:
-        add-to-simple-url-handler-mapping: true
-        cors-configurations:
-          '[/**]':
-            allowedOrigins: "http://localhost:4200"
-            allowedMethods:
-              - GET
-              - POST
-              - PUT
-              - DELETE
-              - OPTIONS
-            allowedHeaders: "*"
-            allowCredentials: true
+          lower-case-service-id: true
       routes:
-        # ==========================================
-        # 1. SEGURIDAD Y AUTENTICACIÓN
-        # ==========================================
         - id: ruta-security
           uri: lb://security
           predicates:
             - Path=/api/auth/**
 
-        # ==========================================
-        # 2. BACKEND FOR FRONTEND (ORQUESTADOR)
-        # ==========================================
         - id: ruta-bff
           uri: lb://bff
           predicates:
-            - Path=/api/bff/** # 🟢 ALINEADO: Ahora coincide perfectamente con los controladores del BFF
+            - Path=/bff/auth/**, /api/bff/**
 
-        # ==========================================
-        # 3. DOMINIO DE PACIENTES
-        # ==========================================
         - id: ruta-pacientes
           uri: lb://ms-pacientes
           predicates:
             - Path=/api/pacientes/**
 
-        # ==========================================
-        # 4. DOMINIO DE DOCTORES (MÉDICOS)
-        # ==========================================
         - id: ruta-doctores
-          uri: lb://ms-doctores # 🟢 AGREGADO: Crucial para interactuar con los perfiles médicos
+          uri: lb://ms-doctores
           predicates:
             - Path=/api/doctores/**
 
-        # ==========================================
-        # 5. LISTAS DE ESPERA
-        # ==========================================
         - id: ms-lista-espera
           uri: lb://ms-lista-espera
           predicates:
-            - Path=/api/listsa-espera/**
+            - Path=/api/listas-espera/**
 
-        # ==========================================
-        # 6. ASISTENTE DE IA (CHATBOT)
-        # ==========================================
         - id: ms-chatbot
           uri: lb://ms-chatbot
           predicates:
@@ -75,4 +46,4 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: http://eureka-server:8761/eureka/
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}

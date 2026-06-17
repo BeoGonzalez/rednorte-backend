@@ -51,7 +51,6 @@ public class BffAuthController {
      */
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody Map<String, Object> payload) {
-        // Paso 1: Registrar usuario en Security
         ResponseEntity<?> authResponse;
         try {
             authResponse = authClient.register(payload);
@@ -59,18 +58,25 @@ public class BffAuthController {
             return ResponseEntity.status(e.status()).body(e.contentUTF8());
         }
 
-        // Extraer el rol del payload
+        // Extraer authId de la respuesta de security
+        Long authId = null;
+        if (authResponse.getBody() instanceof Map<?, ?> body) {
+            Object rawId = body.get("authId");
+            if (rawId instanceof Number number) {
+                authId = number.longValue();
+            }
+        }
+
         String rol = (String) payload.getOrDefault("rol", "ROLE_PACIENTE");
 
-        // Paso 2: Según el rol, crear el perfil en el microservicio correspondiente
-        if ("ROLE_MEDICO".equals(rol)) {
+        if ("ROLE_MEDICO".equals(rol) && authId != null) {
             try {
                 Map<String, Object> doctorPayload = new HashMap<>();
+                doctorPayload.put("authId", authId);
                 doctorPayload.put("nombre", payload.get("nombre"));
                 doctorPayload.put("apellidos", payload.get("apellidos"));
                 doctorPayload.put("specialty", payload.get("specialty"));
                 doctorPayload.put("registroMedico", payload.get("registroMedico"));
-
                 doctorClient.crearPerfil(doctorPayload);
             } catch (FeignException e) {
                 System.err.println("[BFF] Error al crear perfil de doctor: " + e.getMessage());
@@ -78,11 +84,11 @@ public class BffAuthController {
         } else if ("ROLE_PACIENTE".equals(rol)) {
             try {
                 Map<String, Object> pacientePayload = new HashMap<>();
+                if (authId != null) pacientePayload.put("authId", authId);
                 pacientePayload.put("rut", payload.get("rut"));
                 pacientePayload.put("nombre", payload.get("nombre"));
                 pacientePayload.put("apellido", payload.get("apellidos"));
                 pacientePayload.put("email", payload.get("username"));
-
                 pacienteClient.crearPaciente(pacientePayload);
             } catch (FeignException e) {
                 System.err.println("[BFF] Error al crear perfil de paciente: " + e.getMessage());

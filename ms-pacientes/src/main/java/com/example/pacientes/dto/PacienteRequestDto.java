@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
 public record PacienteRequestDto(
+        Long authId,           // nullable — links to ms-security Usuario.id during onboarding
         @NotBlank(message = "El RUT es obligatorio") String rut,
         @NotBlank(message = "El nombre es obligatorio") String nombre,
         @NotBlank(message = "El apellido es obligatorio") String apellido,

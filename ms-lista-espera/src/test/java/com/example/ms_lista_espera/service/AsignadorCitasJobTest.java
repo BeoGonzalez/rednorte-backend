@@ -114,4 +114,23 @@ class AsignadorCitasJobTest {
         verify(citaMedicaRepository, never()).save(any());
         verify(streamBridge, never()).send(anyString(), any());
     }
+
+    @Test
+    void testAutoAsignarCitas_SinDoctoresDisponibles_NoDeberiaCrearCita() {
+        // Given — hay solicitudes pendientes pero ningún doctor disponible
+        when(solicitudRepository.findByEstado("PENDIENTE")).thenReturn(List.of(solicitudPendiente));
+
+        ResponseEntity<List<Map<String, Object>>> emptyResponse =
+                new ResponseEntity<>(Collections.emptyList(), HttpStatus.OK);
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(),
+                any(ParameterizedTypeReference.class))).thenReturn(emptyResponse);
+
+        // When
+        asignadorCitasJob.autoAsignarCitas();
+
+        // Then — no se crea cita ni se emite evento
+        verify(citaMedicaRepository, never()).save(any());
+        verify(streamBridge, never()).send(anyString(), any());
+        assertEquals("PENDIENTE", solicitudPendiente.getEstado());
+    }
 }

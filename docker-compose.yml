@@ -1,28 +1,47 @@
+version: '3.8'
+
+networks:
+  salud-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+
 services:
 
+  # ==========================================
+  # --- INFRAESTRUCTURA BASE ---
+  # ==========================================
   rabbitmq:
     image: rabbitmq:3-management-alpine
     container_name: rednorte-rabbitmq
     ports:
-      - "5673:5672"
-      - "15673:15672"
+      - "5672:5672"
+      - "15672:15672"
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - salud-network
+    restart: unless-stopped
 
-  # ==========================================
   # --- CAPA DE CACHÉ (REDIS) ---
-  # ==========================================
   redis-server:
     image: redis:7-alpine
     container_name: redis-server
     ports:
       - "6379:6379"
+    networks:
+      - salud-network
     restart: unless-stopped
 
-  # ==========================================
   # --- BASE DE DATOS UNIFICADA ---
-  # ==========================================
   postgres-server:
     image: postgres:15-alpine
     container_name: postgres-server
@@ -40,6 +59,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - salud-network
     restart: unless-stopped
 
   # ==========================================
@@ -57,6 +78,24 @@ services:
       interval: 10s
       timeout: 5s
       retries: 10
+    networks:
+      - salud-network
+    restart: unless-stopped
+
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      EUREKA_URL: http://eureka-server:8761/eureka
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      security:
+        condition: service_healthy
+    networks:
+      - salud-network
     restart: unless-stopped
 
   # ==========================================
@@ -73,6 +112,8 @@ services:
     depends_on:
       eureka-server:
         condition: service_healthy
+    networks:
+      - salud-network
     restart: unless-stopped
 
   # ==========================================
@@ -92,6 +133,7 @@ services:
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
       SPRING_DATA_REDIS_HOST: redis-server
       SPRING_DATA_REDIS_PORT: 6379
+      SPRING_RABBITMQ_HOST: rabbitmq
     depends_on:
       eureka-server:
         condition: service_healthy
@@ -99,6 +141,15 @@ services:
         condition: service_healthy
       redis-server:
         condition: service_started
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8083/actuator/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+    networks:
+      - salud-network
     restart: unless-stopped
 
   # ==========================================
@@ -117,6 +168,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: password
       SPRING_DATA_REDIS_HOST: redis-server
       SPRING_DATA_REDIS_PORT: 6379
+      SPRING_RABBITMQ_HOST: rabbitmq
     depends_on:
       eureka-server:
         condition: service_healthy
@@ -124,11 +176,15 @@ services:
         condition: service_healthy
       redis-server:
         condition: service_started
+      rabbitmq:
+        condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:8081/actuator/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 10
+    networks:
+      - salud-network
     restart: unless-stopped
 
   # ==========================================
@@ -147,6 +203,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: password
       SPRING_DATA_REDIS_HOST: redis-server
       SPRING_DATA_REDIS_PORT: 6379
+      SPRING_RABBITMQ_HOST: rabbitmq
     depends_on:
       eureka-server:
         condition: service_healthy
@@ -154,6 +211,15 @@ services:
         condition: service_healthy
       redis-server:
         condition: service_started
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8085/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - salud-network
     restart: unless-stopped
 
   # ==========================================
@@ -173,6 +239,7 @@ services:
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
       SPRING_DATA_REDIS_HOST: redis-server
       SPRING_DATA_REDIS_PORT: 6379
+      SPRING_RABBITMQ_HOST: rabbitmq
     depends_on:
       eureka-server:
         condition: service_healthy
@@ -180,47 +247,13 @@ services:
         condition: service_healthy
       redis-server:
         condition: service_started
+      rabbitmq:
+        condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:8082/actuator/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 10
+    networks:
+      - salud-network
     restart: unless-stopped
-
-  # ==========================================
-  # --- ASISTENTE DE IA (CHATBOT) ---
-  # ==========================================
-  ms-chatbot:
-    build: ./ms-chatbot
-    container_name: ms-chatbot
-    ports:
-      - "8084:8084"
-    environment:
-      SERVER_PORT: 8084
-      EUREKA_URL: http://eureka-server:8761/eureka
-      GITHUB_TOKEN: ${GITHUB_TOKEN}
-    depends_on:
-      eureka-server:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:8084/actuator/health || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-    restart: unless-stopped
-
-  # ==========================================
-  # --- GATEWAY PERIMETRAL ---
-  # ==========================================
-  api-gateway:
-    build: ./api-gateway
-    container_name: api-gateway
-    ports:
-      - "8080:8080"
-    depends_on:
-      eureka-server:
-        condition: service_healthy
-
-# 🟢 IMPORTANTE: Este bloque define el volumen y DEBE estar al final, pegado al margen izquierdo
-volumes:
-  postgres-data:
