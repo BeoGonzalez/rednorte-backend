@@ -3,8 +3,6 @@ kind: Deployment
 metadata:
   name: ms-pacientes
   namespace: rednorte
-  labels:
-    app: ms-pacientes
 spec:
   replicas: 1
   selector:
@@ -16,13 +14,33 @@ spec:
         app: ms-pacientes
     spec:
       containers:
+        # Reemplaza con tu cuenta de AWS
         - name: ms-pacientes
           image: 174448597449.dkr.ecr.us-east-1.amazonaws.com/rednorte-ms-pacientes
-          ports:
-            - containerPort: 8083
           env:
+            # Aquí apuntamos al servicio de Postgres que creamos
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:postgresql://postgres-service:5432/rednorte"
+
+            # Estas variables las toma de tu caja fuerte (Secret)
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: rednorte-secrets
+                  key: "SPRING_DATASOURCE_USERNAME"
+
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: rednorte-secrets
+                  key: "SPRING_DATASOURCE_PASSWORD"
+
+            # Si tu app usa Eureka, asegúrate de que esto esté configurado
             - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
               value: "http://eureka-server:8761/eureka/"
+
+          ports:
+            - containerPort: 8081
           resources:
             requests:
               cpu: "100m"
@@ -34,15 +52,14 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: ms-pacientes
+  name: ms-pacientes-svc
   namespace: rednorte
 spec:
   ports:
-    - port: 8083
-      targetPort: 8083
+    - port: 8081
+      targetPort: 8081
   selector:
     app: ms-pacientes
-  type: ClusterIP
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
@@ -55,7 +72,7 @@ spec:
     kind: Deployment
     name: ms-pacientes
   minReplicas: 1
-  maxReplicas: 3
+  maxReplicas: 2
   metrics:
     - type: Resource
       resource:
