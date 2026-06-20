@@ -21,7 +21,7 @@ spec:
           ports:
             - containerPort: 8084
           env:
-            - # Aquí apuntamos al servicio de Postgres que creamos
+            # Aquí apuntamos al servicio de Postgres que creamos
             - name: SPRING_DATASOURCE_URL
               value: "jdbc:postgresql://postgres-service:5432/rednorte"
 
