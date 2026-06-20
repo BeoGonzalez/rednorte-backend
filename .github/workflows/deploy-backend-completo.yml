@@ -22,7 +22,7 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
-          cache: maven
+          cache: 'maven'
 
       - name: 3. Compilar TODO el proyecto con Maven
         run: mvn clean package -DskipTests
@@ -44,6 +44,7 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: latest
         run: |
+          # Arreglo con el nombre exacto de tus 7 microservicios
           SERVICIOS=("eureka-server" "api-gateway" "security" "bff" "ms-doctores" "ms-pacientes" "ms-lista-espera")
           for SERVICIO in "${SERVICIOS[@]}"; do
             echo "=========================================="
@@ -55,10 +56,13 @@ jobs:
           done
 
       - name: 7. Conectar al Clúster EKS
-        # Ahora el nombre del clúster se llama desde los secrets
         run: aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
 
-      - name: 8. Desplegar en Kubernetes
+      - name: 8. Inyectar Secretos y Desplegar en Kubernetes
         run: |
+          # 1. Reemplaza el texto falso por tu secreto real de GitHub Actions
+          sed -i "s|REEMPLAZAR_JWT_AQUI|${{ secrets.JWT_SECRET }}|g" k8s/00-base-config.yaml
+          # 2. Aplica todos los manifiestos YAML al clúster
           kubectl apply -f k8s/
+          # 3. Fuerza la actualización de las imágenes en los pods
           kubectl rollout restart deployment -n rednorte
