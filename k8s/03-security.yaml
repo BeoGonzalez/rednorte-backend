@@ -21,8 +21,13 @@ spec:
           ports:
             - containerPort: 8081
           env:
+            # Aquí apuntamos al servicio de Postgres que creamos
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:postgresql://postgres-service:5432/rednorte"
+
             - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
               value: "http://eureka-server:8761/eureka/"
+
             - name: JWT_SECRET
               valueFrom:
                 secretKeyRef:
