@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ms-pacientes
+  namespace: rednorte
+  labels:
+    app: ms-pacientes
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ms-pacientes
+  template:
+    metadata:
+      labels:
+        app: ms-pacientes
+    spec:
+      containers:
+        - name: ms-pacientes
+          image: 174448597449.dkr.ecr.us-east-1.amazonaws.com/rednorte-ms-pacientes
+          ports:
+            - containerPort: 8083
+          env:
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: "http://eureka-server:8761/eureka/"
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ms-pacientes
+  namespace: rednorte
+spec:
+  ports:
+    - port: 8083
+      targetPort: 8083
+  selector:
+    app: ms-pacientes
+  type: ClusterIP
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: ms-pacientes-hpa
+  namespace: rednorte
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ms-pacientes
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 50

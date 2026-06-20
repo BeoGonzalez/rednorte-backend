@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: rednorte
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: rednorte-secrets
+  namespace: rednorte
+type: Opaque
+stringData:
+  SPRING_DATASOURCE_USERNAME: "postgres"
+  SPRING_DATASOURCE_PASSWORD: "password"
+  JWT_SECRET: ${JWT_SECRET_KEY }

@@ -1,0 +1,64 @@
+name: Deploy Todo el Backend
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  AWS_REGION: us-east-1
+
+jobs:
+  build-push-deploy-all:
+    name: Build, Push & Deploy All Services
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 1. Checkout del código
+        uses: actions/checkout@v4
+
+      - name: 2. Configurar Java 21 (Temurin)
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: 3. Compilar TODO el proyecto con Maven
+        run: mvn clean package -DskipTests
+
+      - name: 4. Configurar Credenciales de AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: 5. Iniciar sesión en Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: 6. Construir y Subir imágenes (Bucle)
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: latest
+        run: |
+          SERVICIOS=("eureka-server" "api-gateway" "security" "bff" "ms-doctores" "ms-pacientes" "ms-lista-espera")
+          for SERVICIO in "${SERVICIOS[@]}"; do
+            echo "=========================================="
+            echo "Procesando $SERVICIO..."
+            echo "=========================================="
+            ECR_REPOSITORY="rednorte-$SERVICIO"
+            docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./$SERVICIO
+            docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          done
+
+      - name: 7. Conectar al Clúster EKS
+        # Ahora el nombre del clúster se llama desde los secrets
+        run: aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
+
+      - name: 8. Desplegar en Kubernetes
+        run: |
+          kubectl apply -f k8s/
+          kubectl rollout restart deployment -n rednorte
