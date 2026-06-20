@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ms-doctores
+  namespace: rednorte
+  labels:
+    app: ms-doctores
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ms-doctores
+  template:
+    metadata:
+      labels:
+        app: ms-doctores
+    spec:
+      containers:
+        - name: ms-doctores
+          image: 174448597449.dkr.ecr.us-east-1.amazonaws.com/rednorte-ms-doctores
+          ports:
+            - containerPort: 8082
+          env:
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: "http://eureka-server:8761/eureka/"
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ms-doctores
+  namespace: rednorte
+spec:
+  ports:
+    - port: 8082
+      targetPort: 8082
+  selector:
+    app: ms-doctores
+  type: ClusterIP
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: ms-doctores-hpa
+  namespace: rednorte
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ms-doctores
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 50

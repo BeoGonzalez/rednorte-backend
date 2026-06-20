@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ms-lista-espera
+  namespace: rednorte
+  labels:
+    app: ms-lista-espera
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ms-lista-espera
+  template:
+    metadata:
+      labels:
+        app: ms-lista-espera
+    spec:
+      containers:
+        - name: ms-lista-espera
+          image: 174448597449.dkr.ecr.us-east-1.amazonaws.com/rednorte-ms-lista-espera
+          ports:
+            - containerPort: 8084
+          env:
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: "http://eureka-server:8761/eureka/"
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ms-lista-espera
+  namespace: rednorte
+spec:
+  ports:
+    - port: 8084
+      targetPort: 8084
+  selector:
+    app: ms-lista-espera
+  type: ClusterIP
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: ms-lista-espera-hpa
+  namespace: rednorte
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ms-lista-espera
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 50
