@@ -12,7 +12,6 @@ jobs:
   build-push-deploy-all:
     name: Build, Push & Deploy All Services
     runs-on: ubuntu-latest
-
     steps:
       - name: 1. Checkout del código
         uses: actions/checkout@v4
@@ -44,12 +43,8 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: latest
         run: |
-          # Arreglo con el nombre exacto de tus 7 microservicios
           SERVICIOS=("eureka-server" "api-gateway" "security" "bff" "ms-doctores" "ms-pacientes" "ms-lista-espera")
           for SERVICIO in "${SERVICIOS[@]}"; do
-            echo "=========================================="
-            echo "Procesando $SERVICIO..."
-            echo "=========================================="
             ECR_REPOSITORY="rednorte-$SERVICIO"
             docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./$SERVICIO
             docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
@@ -60,9 +55,15 @@ jobs:
 
       - name: 8. Inyectar Secretos y Desplegar en Kubernetes
         run: |
-          # 1. Reemplaza el texto falso por tu secreto real de GitHub Actions
+          # Inyectar el secreto JWT real
           sed -i "s|REEMPLAZAR_JWT_AQUI|${{ secrets.JWT_SECRET }}|g" k8s/00-base-config.yaml
-          # 2. Aplica todos los manifiestos YAML al clúster
+          
+          # LIMPIEZA: Borramos los deployments existentes para forzar un despliegue limpio
+          # Esto elimina el error de "List element types are not identical"
+          kubectl delete deployments --all -n rednorte --ignore-not-found=true
+          
+          # Aplicar todos los manifiestos YAML
           kubectl apply -f k8s/
-          # 3. Fuerza la actualización de las imágenes en los pods
+          
+          # Asegurar que todos los pods se reinicien con la nueva configuración
           kubectl rollout restart deployment -n rednorte
