@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: api-gateway
-          image: 174448597449.dkr.ecr.us-east-1.amazonaws.com/rednorte-api-gateway
+          image: 174448597449.dkr.ecr.us-east-1.amazonaws.com/rednorte-api-gateway:latest
           ports:
             - containerPort: 8080
           env:
@@ -37,12 +37,13 @@ metadata:
   name: api-gateway
   namespace: rednorte
 spec:
+  # AL CAMBIAR A LOADBALANCER, AWS CREARÁ UN BALANCEADOR PÚBLICO
+  type: LoadBalancer
   ports:
-    - port: 8080
-      targetPort: 8080
+    - port: 80       # Puerto público que usarás en el navegador
+      targetPort: 8080 # Puerto interno de tu aplicación Java
   selector:
     app: api-gateway
-  type: ClusterIP
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
