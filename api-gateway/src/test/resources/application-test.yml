@@ -1,0 +1,16 @@
+# Perfil de test: sin Eureka real para que el contexto reactivo arranque aislado.
+eureka:
+  client:
+    enabled: false
+    register-with-eureka: false
+    fetch-registry: false
+spring:
+  cloud:
+    discovery:
+      enabled: false
+    gateway:
+      discovery:
+        locator:
+          # Desactivado en test: sin discovery no existe ReactiveDiscoveryClient,
+          # y este locator lo requiere. Las rutas estáticas lb:// no se resuelven al arrancar.
+          enabled: false

@@ -1,0 +1,11 @@
+# Perfil de test aislado: sin Eureka real. Los clientes Feign se crean como
+# proxies perezosos, por lo que el contexto arranca sin resolver instancias.
+eureka:
+  client:
+    enabled: false
+    register-with-eureka: false
+    fetch-registry: false
+spring:
+  cloud:
+    discovery:
+      enabled: false

@@ -88,6 +88,10 @@ class AuthControllerTest {
         UserDetails userDetails = new User("usuario_existente", "pass",
                 Collections.singletonList(new SimpleGrantedAuthority("ROLE_PACIENTE")));
 
+        Usuario usuario = new Usuario();
+        usuario.setId(42L);
+        usuario.setUsername("usuario_existente");
+        when(usuarioRepository.findByUsername("usuario_existente")).thenReturn(Optional.of(usuario));
         when(userDetailsService.loadUserByUsername("usuario_existente")).thenReturn(userDetails);
         when(jwtService.generateToken(anyMap(), eq(userDetails))).thenReturn("mockJwtToken");
 
@@ -123,5 +127,65 @@ class AuthControllerTest {
 
         assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
         assertEquals(false, response.getBody().get("valid"));
+    }
+
+    @Test
+    void testRegister_UsernameEnBlanco_RetornaBadRequest() {
+        registerDto.setUsername("   ");
+
+        ResponseEntity<Map<String, Object>> response = authController.register(registerDto);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("El campo 'username' es obligatorio.", response.getBody().get("error"));
+        verify(usuarioRepository, never()).save(any(Usuario.class));
+    }
+
+    @Test
+    void testRegister_PasswordEnBlanco_RetornaBadRequest() {
+        registerDto.setPassword(null);
+
+        ResponseEntity<Map<String, Object>> response = authController.register(registerDto);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("El campo 'password' es obligatorio.", response.getBody().get("error"));
+        verify(usuarioRepository, never()).save(any(Usuario.class));
+    }
+
+    @Test
+    void testRegister_RolNulo_AsignaPacientePorDefecto() {
+        registerDto.setRol(null);
+        when(usuarioRepository.findByUsername("nuevo_user")).thenReturn(Optional.empty());
+        when(passwordEncoder.encode("pass123")).thenReturn("encodedPass");
+
+        Usuario guardado = new Usuario();
+        guardado.setId(2L);
+        when(usuarioRepository.save(any(Usuario.class))).thenReturn(guardado);
+
+        ResponseEntity<Map<String, Object>> response = authController.register(registerDto);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("Usuario registrado como ROLE_PACIENTE", response.getBody().get("mensaje"));
+    }
+
+    @Test
+    void testRegister_ExcepcionInterna_RetornaError500() {
+        when(usuarioRepository.findByUsername("nuevo_user"))
+                .thenThrow(new RuntimeException("Fallo de conexión a la BD"));
+
+        ResponseEntity<Map<String, Object>> response = authController.register(registerDto);
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        assertEquals("Fallo de conexión a la BD", response.getBody().get("error"));
+    }
+
+    @Test
+    void testLogin_UsuarioNoEncontradoEnRepositorio_LanzaExcepcion() {
+        UserDetails userDetails = new User("usuario_existente", "pass",
+                Collections.singletonList(new SimpleGrantedAuthority("ROLE_PACIENTE")));
+        when(userDetailsService.loadUserByUsername("usuario_existente")).thenReturn(userDetails);
+        when(usuarioRepository.findByUsername("usuario_existente")).thenReturn(Optional.empty());
+
+        assertThrows(org.springframework.security.core.userdetails.UsernameNotFoundException.class,
+                () -> authController.login(loginDto));
     }
 }
