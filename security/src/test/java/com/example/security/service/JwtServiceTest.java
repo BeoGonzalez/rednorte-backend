@@ -46,6 +46,15 @@ class JwtServiceTest {
     }
 
     @Test
+    void testGenerateToken_SinClaims_GeneraTokenValido() {
+        String token = jwtService.generateToken(userDetails);
+
+        assertNotNull(token);
+        assertTrue(jwtService.isTokenValid(token));
+        assertEquals("medico_test", jwtService.extractUsername(token));
+    }
+
+    @Test
     void testIsTokenValid_FallaSiEsInvalidoOMalformado() {
         String tokenAlterado = "eyJhbGciOiJIUzI1NiJ9.TokenFalso.FirmaInvalida";
 

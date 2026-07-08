@@ -41,7 +41,7 @@ class BffDashboardControllerTest {
         doReturn(ResponseEntity.ok("Perfil Medico OK")).when(doctorClient).obtenerPorAuthId(1L);
         doReturn(ResponseEntity.ok(Collections.emptyList())).when(pacienteClient).getPacientes();
 
-        mockMvc.perform(get("/api/bff/dashboard/1"))
+        mockMvc.perform(get("/api/bff/dashboard/perfil/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.perfilDoctor").value("Perfil Medico OK"))
                 .andExpect(jsonPath("$.listaPacientes").isArray());
@@ -56,7 +56,7 @@ class BffDashboardControllerTest {
         // 🟢 SOLUCIÓN: Usar doReturn
         doReturn(ResponseEntity.ok(Collections.emptyList())).when(pacienteClient).getPacientes();
 
-        mockMvc.perform(get("/api/bff/dashboard/1"))
+        mockMvc.perform(get("/api/bff/dashboard/perfil/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.perfilDoctor").doesNotExist())
                 .andExpect(jsonPath("$.alertaDoctor").value("No se pudo cargar el perfil del médico"))
@@ -72,7 +72,7 @@ class BffDashboardControllerTest {
         FeignException feignException = mock(FeignException.class);
         when(pacienteClient.getPacientes()).thenThrow(feignException);
 
-        mockMvc.perform(get("/api/bff/dashboard/1"))
+        mockMvc.perform(get("/api/bff/dashboard/perfil/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.perfilDoctor").value("Perfil Medico OK"))
                 .andExpect(jsonPath("$.listaPacientes").doesNotExist())

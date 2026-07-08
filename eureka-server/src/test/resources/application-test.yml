@@ -1,0 +1,7 @@
+# Perfil de test: puerto aleatorio para evitar conflictos con un Eureka en ejecución.
+server:
+  port: 0
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false
